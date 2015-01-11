@@ -1,2 +1,2 @@
 # amtk
-The Asynchronous Message Tool Kit. Testing utilities for the AMQP.
+The Asynchronous Message Tool Kit. Utilities for the AMQP.
