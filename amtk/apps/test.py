@@ -150,9 +150,8 @@ class Play(unittest.TestCase):
 
     @patch('amtk.apps.play.builtins')
     @patch('amtk.apps.play.publish')
-    @patch('amtk.apps.play.sys')
     @patch('amtk.apps.play.messages')
-    def test_play(self, messages, sys, publish, builtins):
+    def test_play(self, messages, publish, builtins):
         '''
         Tests the play function.
         '''
