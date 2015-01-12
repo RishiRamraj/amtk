@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
-version = '0.1.0'
+version = '0.1.1'
 
 description = '''
 The Asynchronous Message Tool Kit. Utilities for the AMQP.
@@ -33,6 +33,7 @@ setup(
     author_email='thereisnocowlevel@gmail.com',
     url=url,
     download_url=download_url % version,
+    packages=find_packages(),
     install_requires=[
         'setuptools',
         'pika',
@@ -48,5 +49,4 @@ setup(
             'amtk.record = amtk.apps.record:main',
         ],
     },
-    zip_safe=True,
 )
