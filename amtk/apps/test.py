@@ -164,7 +164,7 @@ class Play(unittest.TestCase):
             connection,
             channel,
         )
-        sys.stdin.readlines.return_value = (
+        args.data.readlines.return_value = (
             json.dumps({'name': 'message 1'}),
             'invalid',
         )

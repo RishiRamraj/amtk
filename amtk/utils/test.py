@@ -209,6 +209,17 @@ class Options(unittest.TestCase):
         parser = options.parse(description, parameters)
         self.check_parser(parser, cases)
 
+    def test_data(self):
+        '''
+        A test for the data function. Data is a file type, so testing it using
+        the conventional method is not possible.
+        '''
+        # Create test data.
+        parser = MagicMock()
+
+        # Run the test.
+        options.data(parser)
+
 
 class Messages(unittest.TestCase):
     '''

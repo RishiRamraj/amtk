@@ -4,6 +4,15 @@
 import argparse
 
 
+def data(parser):
+    '''
+    Adds a data positional argument as readable.
+    '''
+    help = 'The source data file.'
+    type = argparse.FileType('r')
+    parser.add_argument('data', type=type, help=help)
+
+
 def timing(parser):
     '''
     Adds timing parameters.

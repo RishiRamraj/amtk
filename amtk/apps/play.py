@@ -71,7 +71,7 @@ def play(args):
 
     # Read the data.
     timestamp = None
-    for line in sys.stdin.readlines():
+    for line in args.data.readlines():
         try:
             # Decode the data.
             data = json.loads(line)
@@ -95,7 +95,9 @@ def main():
     description = ('Reads messages from stdin and publishes them. The '
                    'exchange should be created before this tool is used.')
     parameters = (
+        options.data,
         options.amqp(routing_key='play', queue=False),
+        options.publish,
         options.timing,
     )
     args = options.parse(description, parameters).parse_args()
