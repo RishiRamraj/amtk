@@ -1,14 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from amtk.utils import messages, options
+import json
+from amtk.utils import messages, options, builtins
 
 
 def callback(channel, method, properties, body):
     '''
     Called when messages are consumed.
     '''
-    print('Received %r' % (body))
+    # Decode the result.
+    data = {
+        'exchange': method.exchange,
+        'routing_key': method.routing_key,
+        'message_id': properties.message_id,
+        'user_id': properties.user_id,
+        'reply_to': properties.reply_to,
+        'correlation_id': properties.correlation_id,
+        'content_type': properties.content_type,
+        'content_encoding': properties.content_encoding,
+        'absolute_expiry_time': properties.expiration,
+        'creation_time': properties.timestamp,
+        'body': body,
+    }
+
+    # Write a single line of json.
+    builtins.print_text(json.dumps(data))
 
 
 def record(args):
