@@ -4,6 +4,17 @@
 import argparse
 
 
+def prefetch(parser):
+    '''
+    Adds prefetch parameters.
+    '''
+    help = 'The prefetch window size.'
+    parser.add_argument('--prefetch_size', type=int, default=0, help=help)
+
+    help = 'The prefetch message count.'
+    parser.add_argument('--prefetch_count', type=int, default=1, help=help)
+
+
 def amqp(routing_key, queue=False):
     '''
     Adds amqp parameters to the parser.
@@ -12,10 +23,6 @@ def amqp(routing_key, queue=False):
         # Add basic messaging parameters.
         help = 'The messaging exchange.'
         parser.add_argument('exchange', type=str, help=help)
-
-        help = 'The exchange type.'
-        choices = ('fanout', 'direct', 'topic')
-        parser.add_argument('type', type=str, help=help, choices=choices)
 
         # When recording, the routing key is used as normal, but when playing
         # back the user can optionally override the routing key for testing
@@ -27,12 +34,11 @@ def amqp(routing_key, queue=False):
         name = '--routing_key' if routing_key == 'play' else 'routing_key'
         parser.add_argument(name, type=str, help=help)
 
-        # Sometimes it's necessary to name the queue explicitly. If the
-        # queue name is '', the server chooses the name.
-        help = 'The name of the queue.'
-        name = 'queue' if queue else '--queue'
-        default = None if queue else ''
-        parser.add_argument(name, type=str, default=default, help=help)
+        if queue:
+            # Sometimes it's necessary to name the queue explicitly. If the
+            # queue name is '', the server chooses the name.
+            help = 'The name of the queue.'
+            parser.add_argument('--queue', type=str, default='', help=help)
 
         # Add authentication parameters.
         help = 'The rabbitmq user.'

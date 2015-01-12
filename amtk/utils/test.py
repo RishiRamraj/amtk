@@ -3,11 +3,11 @@
 
 # Testing tools.
 from amtk.utils import testcase as unittest
-from mock import MagicMock
+from mock import patch, MagicMock
 
 
 # To be tested.
-from amtk.utils import options
+from amtk.utils import options, messages
 
 
 class Options(unittest.TestCase):
@@ -53,22 +53,19 @@ class Options(unittest.TestCase):
 
     def test_amqp_record(self):
         '''
-        A test for the amqp function in record mode. Usually the queue should
-        be explicitly required in this mode, but the test_amqp_queue function
-        covers that case.
+        A test for the amqp function in record mode.
         '''
         # Create test data.
         description = 'test'
-        parameters = (options.amqp(routing_key='routing'), )
+        parameters = (options.amqp(routing_key='routing', queue=True), )
 
         # Create test cases.
         cases = (
             {
-                'test': 'test topic test',
+                'test': 'exchange key',
                 'expected': {
-                    'exchange': 'test',
-                    'type': 'topic',
-                    'routing_key': 'test',
+                    'exchange': 'exchange',
+                    'routing_key': 'key',
                     'queue': '',
                     'user': 'guest',
                     'password': 'guest',
@@ -78,7 +75,7 @@ class Options(unittest.TestCase):
                 },
             },
             {
-                'test': ('test topic test --queue test --user user '
+                'test': ('test test --queue test --user user '
                          '--password password --host host --port 123 '
                          '--virtual_host virtual_host'),
                 'expected': {
@@ -88,31 +85,6 @@ class Options(unittest.TestCase):
                     'host': 'host',
                     'port': 123,
                     'virtual_host': 'virtual_host',
-                },
-            },
-        )
-
-        # Run the test.
-        parser = options.parse(description, parameters)
-        self.check_parser(parser, cases)
-
-    def test_amqp_queue(self):
-        '''
-        A test for the amqp function in record mode with queue required.
-        '''
-        # Create test data.
-        description = 'test'
-        parameters = (options.amqp(routing_key='routing', queue=True), )
-
-        # Create test cases.
-        cases = (
-            {
-                'test': 'test topic test queue',
-                'expected': {
-                    'exchange': 'test',
-                    'type': 'topic',
-                    'routing_key': 'test',
-                    'queue': 'queue',
                 },
             },
         )
@@ -132,13 +104,13 @@ class Options(unittest.TestCase):
         # Create test cases.
         cases = (
             {
-                'test': 'test topic',
+                'test': 'test',
                 'expected': {
                     'routing_key': None,
                 },
             },
             {
-                'test': 'test topic --routing_key test',
+                'test': 'test --routing_key test',
                 'expected': {
                     'routing_key': 'test',
                 },
@@ -148,6 +120,102 @@ class Options(unittest.TestCase):
         # Run the test.
         parser = options.parse(description, parameters)
         self.check_parser(parser, cases)
+
+    def test_prefetch(self):
+        '''
+        A test for the prefetch function.
+        '''
+        # Create test data.
+        description = 'test'
+        parameters = (options.prefetch, )
+
+        # Create test cases.
+        cases = (
+            {
+                'test': '',
+                'expected': {
+                    'prefetch_size': 0,
+                    'prefetch_count': 1,
+                },
+            },
+            {
+                'test': '--prefetch_size 2 --prefetch_count 3',
+                'expected': {
+                    'prefetch_size': 2,
+                    'prefetch_count': 3,
+                },
+            },
+        )
+
+        # Run the test.
+        parser = options.parse(description, parameters)
+        self.check_parser(parser, cases)
+
+
+class Messages(unittest.TestCase):
+    '''
+    Tests for functions in the messages module. These tests are fairly mocky.
+    '''
+    @patch('amtk.utils.messages.pika')
+    def test_connect(self, pika):
+        '''
+        A test for the connect function for completion.
+        '''
+        # Create test data.
+        args = MagicMock()
+        args.user = 'user'
+        args.password = 'password'
+        args.host = 'host'
+        args.port = 123
+        args.virtual_host = 'vhost'
+        args.exchange = 'exchange'
+
+        # Run the test.
+        messages.connect(args)
+
+        # Check the result.
+        self.assertTrue(pika.credentials.PlainCredentials.called)
+        self.assertTrue(pika.ConnectionParameters.called)
+        self.assertTrue(pika.BlockingConnection.called)
+
+    @patch('amtk.utils.messages.pika')
+    def test_subscribe(self, pika):
+        '''
+        A test for the subscribe function for completion.
+        '''
+        # Create test data.
+        channel = MagicMock()
+        args = MagicMock()
+        args.queue = 'queue'
+        args.exchange = 'exchange'
+        args.routing_key = 'routing_key'
+
+        # Run the test.
+        messages.subscribe(channel, args)
+
+        # Check the result.
+        self.assertTrue(channel.queue_declare.called)
+        self.assertTrue(channel.queue_bind.called)
+
+    @patch('amtk.utils.messages.pika')
+    def test_qos(self, pika):
+        '''
+        A test for the qos function for completion.
+        '''
+        # Create test data.
+        channel = MagicMock()
+        args = MagicMock()
+        args.prefetch_size = 2
+        args.prefetch_count = 3
+
+        # Run the test.
+        messages.qos(channel, args)
+
+        # Check the result.
+        channel.basic_qos.assert_called_once_with(
+            prefetch_size=2,
+            prefetch_count=3,
+        )
 
 
 # Run the tests if the file is called directly.
