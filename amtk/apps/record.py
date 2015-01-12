@@ -55,13 +55,18 @@ def record(args):
         # Stop on a keyboard interrupt.
         pass
 
+    # Close the connection.
+    channel.close()
+    connection.close()
+
 
 def main():
     '''
     Application entry point.
     '''
     # Parse the command line arguments.
-    description = 'Reads messages from the queue and prints them.'
+    description = ('Reads messages from the queue and prints them. The '
+                   'exchange should be created before this tool is used.')
     parameters = (
         options.amqp(routing_key='routing', queue=True),
         options.prefetch,
