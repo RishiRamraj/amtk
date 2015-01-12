@@ -77,6 +77,7 @@ def play(args):
 
         except ValueError:
             builtins.print_text('Invalid message: %s' % line)
+            continue
 
         # Publish the data.
         timestamp = publish(timestamp, args, channel, data)

@@ -166,6 +166,7 @@ class Play(unittest.TestCase):
         args.data.readlines.return_value = (
             json.dumps({'name': 'message 1'}),
             'invalid',
+            json.dumps({'name': 'message 2'}),
         )
 
         # Run the test.
