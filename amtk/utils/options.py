@@ -4,6 +4,30 @@
 import argparse
 
 
+def timing(parser):
+    '''
+    Adds timing parameters.
+    '''
+    help = ('Number of seconds between messages. If no timing is specified '
+            'then the original timing is used.')
+    parser.add_argument('--timing', type=int, help=help)
+
+
+def publish(parser):
+    '''
+    Adds publish parameters.
+    '''
+    name = '--mandatory'
+    choices = ('yes', 'no')
+    help = 'Delivery of the message is mandatory.'
+    parser.add_argument(name, choices=choices, default='no', help=help)
+
+    name = '--immediate'
+    choices = ('yes', 'no')
+    help = 'Raise an exception if the message cannot be delivered.'
+    parser.add_argument(name, choices=choices, default='no', help=help)
+
+
 def prefetch(parser):
     '''
     Adds prefetch parameters.

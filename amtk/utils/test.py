@@ -151,6 +151,64 @@ class Options(unittest.TestCase):
         parser = options.parse(description, parameters)
         self.check_parser(parser, cases)
 
+    def test_timing(self):
+        '''
+        A test for the timing function.
+        '''
+        # Create test data.
+        description = 'test'
+        parameters = (options.timing, )
+
+        # Create test cases.
+        cases = (
+            {
+                'test': '',
+                'expected': {
+                    'timing': None,
+                },
+            },
+            {
+                'test': '--timing 0',
+                'expected': {
+                    'timing': 0,
+                },
+            },
+        )
+
+        # Run the test.
+        parser = options.parse(description, parameters)
+        self.check_parser(parser, cases)
+
+    def test_publish(self):
+        '''
+        A test for the publish function.
+        '''
+        # Create test data.
+        description = 'test'
+        parameters = (options.publish, )
+
+        # Create test cases.
+        cases = (
+            {
+                'test': '',
+                'expected': {
+                    'mandatory': 'no',
+                    'immediate': 'no',
+                },
+            },
+            {
+                'test': '--mandatory yes --immediate yes',
+                'expected': {
+                    'mandatory': 'yes',
+                    'immediate': 'yes',
+                },
+            },
+        )
+
+        # Run the test.
+        parser = options.parse(description, parameters)
+        self.check_parser(parser, cases)
+
 
 class Messages(unittest.TestCase):
     '''
