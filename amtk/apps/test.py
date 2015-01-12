@@ -46,7 +46,6 @@ class Record(unittest.TestCase):
                     ' "reply_to": "reply_to", "absolute_expiry_time": 456,'
                     ' "message_id": "message_id"}')
         builtins.print_text.assert_called_once_with(expected)
-        
 
     @patch('amtk.apps.record.messages')
     def test_record(self, messages):
