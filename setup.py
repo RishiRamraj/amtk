@@ -21,7 +21,7 @@ target exchange.
 '''
 
 url = 'https://github.com/RishiRamraj/amtk'
-download_url = 'https://github.com/RishiRamraj/amtk/tarball/%s'
+download_url = 'https://github.com/RishiRamraj/amtk/archive/%s.tar.gz'
 
 setup(
     name='amtk',
