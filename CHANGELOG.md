@@ -13,6 +13,7 @@
 ### Bugs
 
 * [Timing accuracy & receive time.](https://github.com/RishiRamraj/amtk/issues/3)
+* [Timestamps should be reported as legible dates not integers.](https://github.com/RishiRamraj/amtk/issues/6)
 
 ## 0.1.1
  
