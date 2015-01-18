@@ -4,7 +4,8 @@
 # Testing tools.
 from amtk.utils import testcase as unittest
 from mock import patch, MagicMock
-
+import datetime
+import pytz
 
 # To be tested.
 from amtk.utils import options, messages, time, misc
@@ -317,6 +318,20 @@ class Time(unittest.TestCase):
 
         # Check the result.
         self.assertIsNone(result)
+
+    def test_timestamp(self):
+        '''
+        A positive test for timestamp.
+        '''
+        # Create test data.
+        value = datetime.datetime(2015, 1, 18, 17, 44, 24, 0, pytz.utc)
+
+        # Run the test.
+        result = time.timestamp(value)
+
+        # Check the result.
+        expected = 1421603064
+        self.assertEqual(result, expected)
 
 
 class Misc(unittest.TestCase):

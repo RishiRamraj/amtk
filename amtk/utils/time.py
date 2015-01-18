@@ -5,6 +5,10 @@ import pytz
 import datetime
 
 
+# The datetime epoch obect.
+EPOCH = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+
+
 def server_time(timestamp):
     '''
     Returns a datetime object from a timestamp. It's not clear how to get the
@@ -18,3 +22,10 @@ def server_time(timestamp):
     parser = datetime.datetime.fromtimestamp
     parse = lambda target: parser(target, tz=pytz.utc).isoformat()
     return None if timestamp is None else parse(timestamp)
+
+
+def timestamp(value):
+    '''
+    Returns the timestamp of a datetime object.
+    '''
+    return int((value - EPOCH).total_seconds())
