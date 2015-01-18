@@ -7,7 +7,7 @@ from mock import patch, MagicMock
 
 
 # To be tested.
-from amtk.utils import options, messages, time
+from amtk.utils import options, messages, time, misc
 
 
 class Options(unittest.TestCase):
@@ -314,6 +314,39 @@ class Time(unittest.TestCase):
 
         # Run the test.
         result = time.server_time(timestamp)
+
+        # Check the result.
+        self.assertIsNone(result)
+
+
+class Misc(unittest.TestCase):
+    '''
+    Tests for functions in the misc module.
+    '''
+    def test_optional(self):
+        '''
+        A positive test for the optional function.
+        '''
+        # Create test data.
+        function = lambda value: value+1
+        value = 0
+
+        # Run the test.
+        result = misc.optional(function, value)
+
+        # Check the result.
+        self.assertEqual(result, 1)
+
+    def test_optional_null(self):
+        '''
+        A negative test for the optional function.
+        '''
+        # Create test data.
+        function = lambda value: value+1
+        value = None
+
+        # Run the test.
+        result = misc.optional(function, value)
 
         # Check the result.
         self.assertIsNone(result)
