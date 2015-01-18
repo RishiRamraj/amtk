@@ -329,13 +329,12 @@ class Misc(unittest.TestCase):
         '''
         # Create test data.
         function = lambda value: value+1
-        value = 0
 
         # Run the test.
-        result = misc.optional(function, value)
+        result = misc.optional(function)
 
         # Check the result.
-        self.assertEqual(result, 1)
+        self.assertEqual(result(0), 1)
 
     def test_optional_null(self):
         '''
@@ -343,13 +342,12 @@ class Misc(unittest.TestCase):
         '''
         # Create test data.
         function = lambda value: value+1
-        value = None
 
         # Run the test.
-        result = misc.optional(function, value)
+        result = misc.optional(function)
 
         # Check the result.
-        self.assertIsNone(result)
+        self.assertIsNone(result(None))
 
 
 # Run the tests if the file is called directly.

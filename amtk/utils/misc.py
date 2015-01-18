@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
-def optional(function, value):
+def optional(function):
     '''
-    Returns function called with value if value is not None. Returns None
-    otherwise.
+    Wraps the function in logic that returns None if value is None. Otherwise
+    it returns function(value).
     '''
-    return None if value is None else function(value)
+    def result(value):
+        return None if value is None else function(value)
+
+    return result
