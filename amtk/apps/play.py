@@ -5,7 +5,10 @@ import json
 import pika
 import time
 import datetime
-from amtk.utils import messages, options, builtins
+import dateutil.parser
+from amtk.utils import (
+    messages, options, builtins, misc, time as timeutils
+)
 
 
 def wait(args, last, current):
@@ -15,8 +18,7 @@ def wait(args, last, current):
     # Get the time delta.
     delta = 0
     if last:
-        timestamp = datetime.datetime.fromtimestamp
-        delta = (timestamp(current) - timestamp(last)).seconds
+        delta = (current - last).total_seconds()
 
     # Check to see if it's been overridden.
     check = lambda value: value is not None and value >= 0
@@ -26,25 +28,43 @@ def wait(args, last, current):
     time.sleep(seconds)
 
 
-def publish(timestamp, args, channel, data):
+def publish(timestamp, args, channel, line):
     '''
-    Publishes a line from stdin to the message queue.
+    Publishes a line from stdin to the message queue. This function returns
+    the timestamp of the last valid message processed.
     '''
+    try:
+        # Decode the data.
+        data = json.loads(line)
+
+    except ValueError:
+        builtins.print_text('Invalid message: %s' % line)
+        return timestamp
+
+    # Parse timestamps.
+    parser = misc.optional(dateutil.parser.parse)
+    expiry_time = parser(data['absolute_expiry_time'])
+    creation_time = parser(data['creation_time'])
+
     # Wait to publish.
-    wait(args, timestamp, data['creation_time'])
+    wait(args, timestamp, creation_time)
 
     # Get publish parameters.
-    routing_key = args.routing_key if args.routing_key else data['routing_key']
+    key = args.routing_key
+    routing_key = key if key else data['routing_key']
     mandatory = args.mandatory == 'yes'
     immediate = args.immediate == 'yes'
+
+    # Set the properties.
+    parser = misc.optional(timeutils.timestamp)
     properties = pika.spec.BasicProperties(
         content_type=data['content_type'],
         content_encoding=data['content_encoding'],
         correlation_id=data['correlation_id'],
         reply_to=data['reply_to'],
-        expiration=data['absolute_expiry_time'],
+        expiration=parser(expiry_time),
         message_id=data['message_id'],
-        timestamp=data['creation_time'],
+        timestamp=parser(creation_time),
         user_id=data['user_id'],
     )
 
@@ -58,7 +78,7 @@ def publish(timestamp, args, channel, data):
         immediate=immediate,
     )
 
-    return data['creation_time']
+    return creation_time
 
 
 def play(args):
@@ -71,16 +91,8 @@ def play(args):
     # Read the data.
     timestamp = None
     for line in args.data.readlines():
-        try:
-            # Decode the data.
-            data = json.loads(line)
-
-        except ValueError:
-            builtins.print_text('Invalid message: %s' % line)
-            continue
-
         # Publish the data.
-        timestamp = publish(timestamp, args, channel, data)
+        timestamp = publish(timestamp, args, channel, line)
 
     # Close the connection.
     channel.close()
