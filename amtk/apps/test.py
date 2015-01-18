@@ -112,7 +112,9 @@ class Play(unittest.TestCase):
         self.check_wait(time, 1, last, 1)
         self.check_wait(time, -1, last, 60)
 
-    def check_publish(self, routing_key):
+    @patch('amtk.apps.play.pika')
+    @patch('amtk.apps.play.wait')
+    def check_publish(self, routing_key, wait, pika, line=None):
         '''
         Structure for testing the publish function.
         '''
@@ -136,18 +138,89 @@ class Play(unittest.TestCase):
             'user_id': 'user_id',
             'body': 'body',
         }
+        line = line if line else json.dumps(data)
 
         # Run the test.
-        play.publish(timestamp, args, channel, data)
+        result = play.publish(timestamp, args, channel, line)
 
-    @patch('amtk.apps.play.pika')
-    @patch('amtk.apps.play.wait')
-    def test_publish(self, wait, pika):
+        # Return the results.
+        properties = pika.spec.BasicProperties
+        basic_publish = channel.basic_publish
+        return result, properties, basic_publish
+
+    @patch('amtk.apps.play.builtins')
+    def test_publish(self, builtins):
         '''
-        Tests the publish function.
+        A positive test for the publish function. The routing key is not
+        overridden. builtins is mocked to ensure that the json is properly
+        parsed.
         '''
-        self.check_publish(None)
-        self.check_publish('routing_key')
+        # Create fake data.
+        routing_key = None
+
+        # Run the test.
+        result = self.check_publish(routing_key)
+        result, properties, basic_publish = result
+
+        # Check the result.
+        self.assertFalse(builtins.print_text.called)
+        self.assertEqual(result, 123)
+
+        # Check message properties.
+        expected = {
+            'user_id': u'user_id',
+            'timestamp': 123,
+            'correlation_id': u'correlation_id',
+            'expiration': 456,
+            'content_type': u'content_type',
+            'reply_to': u'reply_to',
+            'message_id': u'message_id',
+            'content_encoding': u'content_encoding',
+        }
+        self.assertEqual(properties.call_args[1], expected)
+
+        # Check the content sent to the channel.
+        expected = {
+            'body': u'body',
+            'mandatory': False,
+            'exchange': 'test',
+            'routing_key': u'routing_key',
+            'immediate': False,
+            'properties': properties.return_value,
+        }
+        self.assertEqual(basic_publish.call_args[1], expected)
+
+    def test_publish_routing_key(self):
+        '''
+        Tests routing key override.
+        '''
+        # Create fake data.
+        routing_key = 'override'
+
+        # Run the test.
+        result = self.check_publish(routing_key)
+        result, properties, basic_publish = result
+
+        # Check the result.
+        value = basic_publish.call_args[1]['routing_key']
+        self.assertEqual(value, routing_key)
+
+    @patch('amtk.apps.play.builtins')
+    def test_publish_bad_json(self, builtins):
+        '''
+        The line given could not be parsed.
+        '''
+        # Create fake data.
+        routing_key = None
+        line = '{bad json'
+
+        # Run the test.
+        result = self.check_publish(routing_key, line=line)
+        result, properties, basic_publish = result
+
+        # Check the result.
+        self.assertTrue(builtins.print_text.called)
+        self.assertIsNone(result)
 
     @patch('amtk.apps.play.builtins')
     @patch('amtk.apps.play.publish')
@@ -174,7 +247,6 @@ class Play(unittest.TestCase):
         play.play(args)
 
         # Check the result.
-        self.assertTrue(builtins.print_text.called)
         self.assertTrue(publish.called)
         self.assertTrue(channel.close.called)
         self.assertTrue(connection.close.called)

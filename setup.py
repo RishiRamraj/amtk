@@ -38,6 +38,7 @@ setup(
         'setuptools',
         'pika',
         'pytz',
+        'python-dateutil',
     ],
     tests_require=[
         'mock',

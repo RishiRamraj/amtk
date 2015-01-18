@@ -4,7 +4,6 @@
 # Testing tools.
 from amtk.utils import testcase as unittest
 from mock import patch, MagicMock
-import pytz
 
 
 # To be tested.

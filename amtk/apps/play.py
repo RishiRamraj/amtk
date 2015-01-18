@@ -26,15 +26,25 @@ def wait(args, last, current):
     time.sleep(seconds)
 
 
-def publish(timestamp, args, channel, data):
+def publish(timestamp, args, channel, line):
     '''
-    Publishes a line from stdin to the message queue.
+    Publishes a line from stdin to the message queue. This function returns
+    the timestamp of the last valid message processed.
     '''
+    try:
+        # Decode the data.
+        data = json.loads(line)
+
+    except ValueError:
+        builtins.print_text('Invalid message: %s' % line)
+        return timestamp
+
     # Wait to publish.
     wait(args, timestamp, data['creation_time'])
 
     # Get publish parameters.
-    routing_key = args.routing_key if args.routing_key else data['routing_key']
+    key = args.routing_key
+    routing_key = key if key else data['routing_key']
     mandatory = args.mandatory == 'yes'
     immediate = args.immediate == 'yes'
     properties = pika.spec.BasicProperties(
@@ -71,16 +81,8 @@ def play(args):
     # Read the data.
     timestamp = None
     for line in args.data.readlines():
-        try:
-            # Decode the data.
-            data = json.loads(line)
-
-        except ValueError:
-            builtins.print_text('Invalid message: %s' % line)
-            continue
-
         # Publish the data.
-        timestamp = publish(timestamp, args, channel, data)
+        timestamp = publish(timestamp, args, channel, line)
 
     # Close the connection.
     channel.close()
