@@ -37,6 +37,7 @@ setup(
     install_requires=[
         'setuptools',
         'pika',
+        'pytz',
     ],
     tests_require=[
         'mock',

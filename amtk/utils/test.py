@@ -4,10 +4,11 @@
 # Testing tools.
 from amtk.utils import testcase as unittest
 from mock import patch, MagicMock
+import pytz
 
 
 # To be tested.
-from amtk.utils import options, messages
+from amtk.utils import options, messages, time
 
 
 class Options(unittest.TestCase):
@@ -285,6 +286,26 @@ class Messages(unittest.TestCase):
             prefetch_size=2,
             prefetch_count=3,
         )
+
+
+class Time(unittest.TestCase):
+    '''
+    Tests for functions in the time module.
+    '''
+    def test_server_time(self):
+        '''
+        A test for the server_time function.
+        '''
+        # Create test data.
+        timestamp = 1421562419
+
+        # Run the test.
+        result = time.server_time(timestamp)
+
+        # Check the result.
+        expected = '2015-01-18T06:26:59+00:00'
+        self.assertEqual(result.isoformat(), expected)
+        self.assertIs(result.tzinfo, pytz.utc)
 
 
 # Run the tests if the file is called directly.
