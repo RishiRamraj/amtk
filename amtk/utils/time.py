@@ -16,4 +16,5 @@ def server_time(timestamp):
     this function can be changed.
     '''
     parser = datetime.datetime.fromtimestamp
-    return None if timestamp is None else parser(timestamp, tz=pytz.utc)
+    parse = lambda target: parser(target, tz=pytz.utc).isoformat()
+    return None if timestamp is None else parse(timestamp)

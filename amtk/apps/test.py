@@ -41,11 +41,12 @@ class Record(unittest.TestCase):
 
         # Check the result.
         expected = ('{"body": "body", "exchange": "exchange", "creation_time":'
-                    ' 123, "correlation_id": "correlation_id", "content_type":'
-                    ' "content_type", "user_id": "user_id", "routing_key":'
-                    ' "routing_key", "content_encoding": "content_encoding",'
-                    ' "reply_to": "reply_to", "absolute_expiry_time": 456,'
-                    ' "message_id": "message_id"}')
+                    ' "1970-01-01T00:02:03+00:00", "correlation_id": '
+                    '"correlation_id", "content_type": "content_type", '
+                    '"user_id": "user_id", "routing_key": "routing_key", '
+                    '"content_encoding": "content_encoding", "reply_to": '
+                    '"reply_to", "absolute_expiry_time": '
+                    '"1970-01-01T00:07:36+00:00", "message_id": "message_id"}')
         builtins.print_text.assert_called_once_with(expected)
 
     @patch('amtk.apps.record.messages')

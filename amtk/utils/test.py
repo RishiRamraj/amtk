@@ -304,8 +304,7 @@ class Time(unittest.TestCase):
 
         # Check the result.
         expected = '2015-01-18T06:26:59+00:00'
-        self.assertEqual(result.isoformat(), expected)
-        self.assertIs(result.tzinfo, pytz.utc)
+        self.assertEqual(result, expected)
 
     def test_server_time_none(self):
         '''
