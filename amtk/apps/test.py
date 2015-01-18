@@ -278,6 +278,126 @@ class Play(unittest.TestCase):
         play.main()
 
 
+class Integration(unittest.TestCase):
+    '''
+    Ensures that play can play recordings and vice versa.
+    '''
+    @patch('amtk.apps.record.builtins')
+    def run_record(self, properties, body, builtins):
+        '''
+        Used to run the record portion of the test.
+        '''
+        # Create test data.
+        channel = MagicMock()
+        method = MagicMock()
+        method.exchange = 'exchange'
+        method.routing_key = 'routing_key'
+
+        # Run the test.
+        record.callback(channel, method, properties, body)
+
+        # Return the result.
+        return builtins.print_text.call_args[0][0]
+
+    @patch('amtk.apps.play.pika')
+    @patch('amtk.apps.play.wait')
+    def run_play(self, line, wait, pika):
+        '''
+        Used to run the play portion of the test.
+        '''
+        # Create fake data.
+        timestamp = None
+        args = MagicMock()
+        args.mandatory = 'no'
+        args.immediate = 'no'
+        args.exchange = 'exchange'
+        args.routing_key = 'routing_key'
+        channel = MagicMock()
+
+        # Run the test.
+        result = play.publish(timestamp, args, channel, line)
+
+        # Return the results.
+        properties = pika.spec.BasicProperties
+        basic_publish = channel.basic_publish
+        return result, properties, basic_publish
+
+    def test_play_recording(self):
+        '''
+        Records some data and tries to play the result.
+        '''
+        # Create test data.
+        properties = MagicMock()
+        properties.message_id = 'message_id'
+        properties.user_id = 'user_id'
+        properties.reply_to = 'reply_to'
+        properties.correlation_id = 'correlation_id'
+        properties.content_type = 'content_type'
+        properties.content_encoding = 'content_encoding'
+        properties.timestamp = TIMESTAMPS['created'][0]
+        properties.expiration = None
+        body = 'body'
+
+        # Record the message.
+        line = self.run_record(properties, body)
+
+        # Play the message.
+        result = self.run_play(line)
+        result, properties, basic_publish = result
+
+        # Check properties.
+        expected = {
+            'user_id': u'user_id',
+            'timestamp': TIMESTAMPS['created'][0],
+            'correlation_id': u'correlation_id',
+            'expiration': None,
+            'content_type': u'content_type',
+            'reply_to': u'reply_to',
+            'message_id': u'message_id',
+            'content_encoding': u'content_encoding',
+        }
+        self.assertEqual(properties.call_args[1], expected)
+
+        # Check the body.
+        publish = basic_publish.call_args[1]
+        self.assertEqual(publish['body'], 'body')
+
+    def test_recording_playback(self):
+        '''
+        Records some data and tries to play the result.
+        '''
+        # Create test data.
+        line = ('{"body": "body", "exchange": "exchange", "creation_time": '
+                '"2015-01-18T17:44:24+00:00", "correlation_id": '
+                '"correlation_id", "content_type": "content_type", "user_id": '
+                '"user_id", "routing_key": "routing_key", "content_encoding": '
+                '"content_encoding", "reply_to": "reply_to", '
+                '"absolute_expiry_time": null, "message_id": "message_id"}')
+
+        # Play the message.
+        result = self.run_play(line)
+        result, properties, basic_publish = result
+
+        # Decode the playback.
+        properties = properties.call_args[1]
+        prop = MagicMock()
+        prop.message_id = properties['message_id']
+        prop.user_id = properties['user_id']
+        prop.reply_to = properties['reply_to']
+        prop.correlation_id = properties['correlation_id']
+        prop.content_type = properties['content_type']
+        prop.content_encoding = properties['content_encoding']
+        prop.timestamp = properties['timestamp']
+        prop.expiration = properties['expiration']
+        body = basic_publish.call_args[1]['body']
+
+        # Record the message.
+        result = self.run_record(prop, body)
+
+        # Check the line.
+        self.assertEqual(result, line)
+
+
 # Run the tests if the file is called directly.
 if __name__ == '__main__':
     unittest.main()

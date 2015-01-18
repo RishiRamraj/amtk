@@ -14,6 +14,7 @@
 
 * [Timing accuracy & receive time.](https://github.com/RishiRamraj/amtk/issues/3)
 * [Timestamps should be reported as legible dates not integers.](https://github.com/RishiRamraj/amtk/issues/6)
+* [Need an integration test for record and play.](https://github.com/RishiRamraj/amtk/issues/7)
 
 ## 0.1.1
  

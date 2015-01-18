@@ -4,7 +4,6 @@
 import json
 import pika
 import time
-import datetime
 import dateutil.parser
 from amtk.utils import (
     messages, options, builtins, misc, time as timeutils
