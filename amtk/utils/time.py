@@ -15,4 +15,5 @@ def server_time(timestamp):
     This function abstracts away this problem. Once a clear answer is found,
     this function can be changed.
     '''
-    return datetime.datetime.fromtimestamp(timestamp, tz=pytz.utc)
+    parser = datetime.datetime.fromtimestamp
+    return None if timestamp is None else parser(timestamp, tz=pytz.utc)

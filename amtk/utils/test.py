@@ -307,6 +307,19 @@ class Time(unittest.TestCase):
         self.assertEqual(result.isoformat(), expected)
         self.assertIs(result.tzinfo, pytz.utc)
 
+    def test_server_time_none(self):
+        '''
+        If no timestamp is given, the parser should return None.
+        '''
+        # Create test data.
+        timestamp = None
+
+        # Run the test.
+        result = time.server_time(timestamp)
+
+        # Check the result.
+        self.assertIsNone(result)
+
 
 # Run the tests if the file is called directly.
 if __name__ == '__main__':
