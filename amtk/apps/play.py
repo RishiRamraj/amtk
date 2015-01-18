@@ -54,14 +54,17 @@ def publish(timestamp, args, channel, line):
     routing_key = key if key else data['routing_key']
     mandatory = args.mandatory == 'yes'
     immediate = args.immediate == 'yes'
+
+    # Set the properties.
+    parser = misc.optional(timeutils.timestamp)
     properties = pika.spec.BasicProperties(
         content_type=data['content_type'],
         content_encoding=data['content_encoding'],
         correlation_id=data['correlation_id'],
         reply_to=data['reply_to'],
-        expiration=timeutils.timestamp(expiry_time),
+        expiration=parser(expiry_time),
         message_id=data['message_id'],
-        timestamp=timeutils.timestamp(creation_time),
+        timestamp=parser(creation_time),
         user_id=data['user_id'],
     )
 

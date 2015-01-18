@@ -31,11 +31,6 @@ TIMESTAMPS = {
         '2015-01-18T17:44:24+00:00',
         parse(1421603064),
     ),
-    'expired': (
-        1421603802,
-        '2015-01-18T17:56:42+00:00',
-        parse(1421603802),
-    ),
 }
 
 
@@ -61,7 +56,7 @@ class Record(unittest.TestCase):
         properties.content_type = 'content_type'
         properties.content_encoding = 'content_encoding'
         properties.timestamp = TIMESTAMPS['created'][0]
-        properties.expiration = TIMESTAMPS['expired'][0]
+        properties.expiration = None
         body = 'body'
 
         # Run the test.
@@ -74,9 +69,9 @@ class Record(unittest.TestCase):
                     '"user_id": "user_id", "routing_key": "routing_key", '
                     '"content_encoding": "content_encoding", "reply_to": '
                     '"reply_to", "absolute_expiry_time": '
-                    '"%s", "message_id": "message_id"}')
-        values = (TIMESTAMPS['created'][1], TIMESTAMPS['expired'][1])
-        builtins.print_text.assert_called_once_with(expected % values)
+                    'null, "message_id": "message_id"}')
+        value = TIMESTAMPS['created'][1]
+        builtins.print_text.assert_called_once_with(expected % value)
 
     @patch('amtk.apps.record.messages')
     def test_record(self, messages):
@@ -155,7 +150,7 @@ class Play(unittest.TestCase):
             'content_encoding': 'content_encoding',
             'correlation_id': 'correlation_id',
             'reply_to': 'reply_to',
-            'absolute_expiry_time': TIMESTAMPS['expired'][1],
+            'absolute_expiry_time': None,
             'message_id': 'message_id',
             'user_id': 'user_id',
             'body': 'body',
@@ -193,7 +188,7 @@ class Play(unittest.TestCase):
             'user_id': u'user_id',
             'timestamp': TIMESTAMPS['created'][0],
             'correlation_id': u'correlation_id',
-            'expiration': TIMESTAMPS['expired'][0],
+            'expiration': None,
             'content_type': u'content_type',
             'reply_to': u'reply_to',
             'message_id': u'message_id',
