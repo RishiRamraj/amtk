@@ -4,10 +4,12 @@
 # Testing tools.
 from amtk.utils import testcase as unittest
 from mock import patch, MagicMock
-
+import datetime
+import pytz
+import argparse
 
 # To be tested.
-from amtk.utils import options, messages
+from amtk.utils import options, messages, time, misc
 
 
 class Options(unittest.TestCase):
@@ -164,13 +166,13 @@ class Options(unittest.TestCase):
             {
                 'test': '',
                 'expected': {
-                    'timing': None,
+                    'timing': 'record',
                 },
             },
             {
                 'test': '--timing 0',
                 'expected': {
-                    'timing': 0,
+                    'timing': '0',
                 },
             },
         )
@@ -211,14 +213,53 @@ class Options(unittest.TestCase):
 
     def test_data(self):
         '''
-        A test for the data function. Data is a file type, so testing it using
+        A test for the data function. data is a file type, so testing it using
         the conventional method is not possible.
         '''
         # Create test data.
-        parser = MagicMock()
+        parser = argparse.ArgumentParser()
 
         # Run the test.
         options.data(parser)
+
+    def test_files(self):
+        '''
+        A test for the files function. files is a file type, so testing it
+        using the conventional method is not possible.
+        '''
+        # Create test data.
+        parser = argparse.ArgumentParser()
+
+        # Run the test.
+        options.files(parser)
+
+    def test_order(self):
+        '''
+        A test for the order function.
+        '''
+        # Create test data.
+        description = 'test'
+        parameters = (options.order, )
+
+        # Create test cases.
+        cases = (
+            {
+                'test': '',
+                'expected': {
+                    'order': 'record',
+                },
+            },
+            {
+                'test': '--order created',
+                'expected': {
+                    'order': 'created',
+                },
+            },
+        )
+
+        # Run the test.
+        parser = options.parse(description, parameters)
+        self.check_parser(parser, cases)
 
 
 class Messages(unittest.TestCase):
@@ -285,6 +326,99 @@ class Messages(unittest.TestCase):
             prefetch_size=2,
             prefetch_count=3,
         )
+
+
+class Time(unittest.TestCase):
+    '''
+    Tests for functions in the time module.
+    '''
+    def test_server_time(self):
+        '''
+        A test for the server_time function.
+        '''
+        # Create test data.
+        timestamp = 1421562419
+
+        # Run the test.
+        result = time.server_time(timestamp)
+
+        # Check the result.
+        expected = '2015-01-18T06:26:59+00:00'
+        self.assertEqual(result, expected)
+
+    def test_server_time_none(self):
+        '''
+        If no timestamp is given, the parser should return None.
+        '''
+        # Create test data.
+        timestamp = None
+
+        # Run the test.
+        result = time.server_time(timestamp)
+
+        # Check the result.
+        self.assertIsNone(result)
+
+    def test_timestamp(self):
+        '''
+        A positive test for timestamp.
+        '''
+        # Create test data.
+        value = datetime.datetime(2015, 1, 18, 17, 44, 24, 0, pytz.utc)
+
+        # Run the test.
+        result = time.timestamp(value)
+
+        # Check the result.
+        expected = 1421603064
+        self.assertEqual(result, expected)
+
+    @patch('amtk.utils.time.datetime')
+    def test_now(self, _datetime):
+        '''
+        A positive test for now, for completion.
+        '''
+        # Create fake data.
+        test = datetime.datetime(2015, 1, 1, tzinfo=pytz.utc)
+        _datetime.datetime.now.return_value = test
+
+        # Run the test.
+        result = time.now()
+
+        # Check the result.
+        expected = '2015-01-01T00:00:00+00:00'
+        self.assertEqual(result, expected)
+
+
+class Misc(unittest.TestCase):
+    '''
+    Tests for functions in the misc module.
+    '''
+    def test_optional(self):
+        '''
+        A positive test for the optional function.
+        '''
+        # Create test data.
+        function = lambda value: value+1
+
+        # Run the test.
+        result = misc.optional(function)
+
+        # Check the result.
+        self.assertEqual(result(0), 1)
+
+    def test_optional_null(self):
+        '''
+        A negative test for the optional function.
+        '''
+        # Create test data.
+        function = lambda value: value+1
+
+        # Run the test.
+        result = misc.optional(function)
+
+        # Check the result.
+        self.assertIsNone(result(None))
 
 
 # Run the tests if the file is called directly.

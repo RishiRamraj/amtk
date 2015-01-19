@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from amtk.utils import messages, options, builtins
+from amtk.utils import messages, options, builtins, time
 
 
 def callback(channel, method, properties, body):
@@ -19,8 +19,9 @@ def callback(channel, method, properties, body):
         'correlation_id': properties.correlation_id,
         'content_type': properties.content_type,
         'content_encoding': properties.content_encoding,
-        'absolute_expiry_time': properties.expiration,
-        'creation_time': properties.timestamp,
+        'absolute_expiry_time': time.server_time(properties.expiration),
+        'creation_time': time.server_time(properties.timestamp),
+        'record_time': time.now(),
         'body': body,
     }
 

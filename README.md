@@ -1,7 +1,7 @@
 # amtk
 The Asynchronous Message Tool Kit. Utilities for the AMQP.
 
-Currently only two tools are supported; record and play.
+Currently three tools are supported; record, play and merge.
 
 ## Installation
 
@@ -88,6 +88,36 @@ optional arguments:
                         The rabbitmq virtual host.
   --mandatory {yes,no}  Delivery of the message is mandatory.
   --immediate {yes,no}  Raise an exception if the message cannot be delivered.
-  --timing TIMING       Number of seconds between messages. If no timing is
-                        specified then the original timing is used.
+  --timing TIMING       Configures the time interval between messages. Can be
+                        one of record, create or the number of seconds between
+                        messages. If record is specified, the original record
+                        timing is used. If create is specified, the created on
+                        timestamp is used; note that this timing is only
+                        accurate to the second. If no timing is specified,
+                        record is used.
+```
+
+## Merge
+
+The merge tool uses message_ids to merge multiple recordings into a
+single file. The merge results are printed directly to stdout.
+
+Messages are recorded in json format. One message should occupy
+one line in the output.
+
+
+```
+usage: amtk.merge [-h] [--order {record,created}] files [files ...]
+
+Merge a number of recorded data files and print the result. Note that the
+message id is used to merge the data sets. Messages that cannot be parsed or
+lack a message id are ignored.
+
+positional arguments:
+  files                 The source data files.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --order {record,created}
+                        The order of the messages in the merge.
 ```

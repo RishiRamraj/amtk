@@ -4,6 +4,26 @@
 import argparse
 
 
+def order(parser):
+    '''
+    Used to order the merge of data.
+    '''
+    help = 'The order of the messages in the merge.'
+    name = '--order'
+    default = 'record'
+    choices = ('record', 'created')
+    parser.add_argument(name, choices=choices, default=default, help=help)
+
+
+def files(parser):
+    '''
+    Adds a varidac positional option to list files.
+    '''
+    help = 'The source data files.'
+    type = argparse.FileType('r')
+    parser.add_argument('files', type=type, help=help, nargs='+')
+
+
 def data(parser):
     '''
     Adds a data positional argument as readable.
@@ -17,9 +37,13 @@ def timing(parser):
     '''
     Adds timing parameters.
     '''
-    help = ('Number of seconds between messages. If no timing is specified '
-            'then the original timing is used.')
-    parser.add_argument('--timing', type=int, help=help)
+    help = ('Configures the time interval between messages. Can be one of '
+            'record, create or the number of seconds between messages. If '
+            'record is specified, the original record timing is used. If '
+            'create is specified, the created on timestamp is used; note '
+            'that this timing is only accurate to the second. If no timing '
+            'is specified, record is used.')
+    parser.add_argument('--timing', default='record', help=help)
 
 
 def publish(parser):
