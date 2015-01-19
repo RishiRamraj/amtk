@@ -11,13 +11,16 @@ The Asynchronous Message Tool Kit. Utilities for the AMQP.
 '''
 long_description = '''
 The Asynchronous Message Tool Kit. Utilities for the AMQP.
-Currently only two tools are supported; record and play.
+Currently three tools are supported; record, play and merge.
 
 The record tool reads messages from the exchange and prints
 them to stdout. Messages are recorded in json format.
 
 The play tool reads messages from a file and sends them to the
 target exchange.
+
+The merge tool uses message_ids to merge recordings into a single
+file.
 '''
 
 url = 'https://github.com/RishiRamraj/amtk'
