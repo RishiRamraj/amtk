@@ -333,6 +333,16 @@ class Time(unittest.TestCase):
         expected = 1421603064
         self.assertEqual(result, expected)
 
+    def test_now(self):
+        '''
+        A positive test for now.
+        '''
+        # Run the test.
+        result = time.now()
+
+        # Check the result.
+        self.assertIs(result.tzinfo, pytz.utc)
+
 
 class Misc(unittest.TestCase):
     '''
