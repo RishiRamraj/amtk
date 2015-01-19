@@ -165,13 +165,13 @@ class Options(unittest.TestCase):
             {
                 'test': '',
                 'expected': {
-                    'timing': None,
+                    'timing': 'record',
                 },
             },
             {
                 'test': '--timing 0',
                 'expected': {
-                    'timing': 0,
+                    'timing': '0',
                 },
             },
         )

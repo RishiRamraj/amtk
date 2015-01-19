@@ -17,9 +17,13 @@ def timing(parser):
     '''
     Adds timing parameters.
     '''
-    help = ('Number of seconds between messages. If no timing is specified '
-            'then the original timing is used.')
-    parser.add_argument('--timing', type=int, help=help)
+    help = ('Configures the time interval between messages. Can be one of '
+            'record, create or the number of seconds between messages. If '
+            'record is specified, the original record timing is used. If '
+            'create is specified, the created on timestamp is used; note '
+            'that this timing is only accurate to the second. If no timing '
+            'is specified, record is used.')
+    parser.add_argument('--timing', default='record', help=help)
 
 
 def publish(parser):
