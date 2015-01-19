@@ -27,7 +27,8 @@ def merge(args):
             if id is None or id in content:
                 continue
 
-            # Write the line. To ensure that content is properly 
+            # Write the line. To ensure that content is properly formatted,
+            # it is re-encoded using json.
             builtins.print_text(json.dumps(data))
             content.add(id)
 

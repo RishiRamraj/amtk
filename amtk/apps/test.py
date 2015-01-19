@@ -19,7 +19,7 @@ parse = lambda value: datetime.datetime.fromtimestamp(value, pytz.utc)
 TIMESTAMPS = {
     'now': (
         1420070460,
-        '2015-01-01T00:01:00.01+00:00',
+        '2015-01-01T00:01:00.001+00:00',
         dateutil.parser.parse('2015-01-01T00:01:00.001+00:00'),
     ),
     'last': (
@@ -275,7 +275,7 @@ class Play(unittest.TestCase):
 
         # Check the result.
         self.assertFalse(builtins.print_text.called)
-        self.assertEqual(result, TIMESTAMPS['created'][2])
+        self.assertEqual(result, TIMESTAMPS['now'][2])
 
         # Check message properties.
         expected = {
