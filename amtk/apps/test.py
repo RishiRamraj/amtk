@@ -8,6 +8,7 @@ import json
 import datetime
 import pytz
 import dateutil.parser
+from amtk.utils import time
 
 # To be tested.
 from amtk.apps import record, play
@@ -38,11 +39,18 @@ class Record(unittest.TestCase):
     '''
     Tests for functions in the record module. These tests are fairly mocky.
     '''
+    @patch('amtk.apps.record.time')
     @patch('amtk.apps.record.builtins')
-    def test_callback(self, builtins):
+    def test_callback(self, builtins, _time):
         '''
         A test for the callback function.
         '''
+        now = TIMESTAMPS['created'][1]
+
+        # Mock time.now. server_time should not be mocked.
+        _time.server_time = time.server_time
+        _time.now.return_value = now
+
         # Create test data.
         channel = MagicMock()
         method = MagicMock()
@@ -64,14 +72,13 @@ class Record(unittest.TestCase):
 
         # Check the result.
         expected = ('{"body": "body", "exchange": "exchange", "creation_time":'
-                    ' "%s", "correlation_id": '
-                    '"correlation_id", "content_type": "content_type", '
-                    '"user_id": "user_id", "routing_key": "routing_key", '
-                    '"content_encoding": "content_encoding", "reply_to": '
-                    '"reply_to", "absolute_expiry_time": '
-                    'null, "message_id": "message_id"}')
-        value = TIMESTAMPS['created'][1]
-        builtins.print_text.assert_called_once_with(expected % value)
+                    ' "%s", "correlation_id": "correlation_id", "content_type"'
+                    ': "content_type", "user_id": "user_id", "record_time": '
+                    '"%s", "routing_key": "routing_key", "content_encoding": '
+                    '"content_encoding", "reply_to": "reply_to", '
+                    '"absolute_expiry_time": null, "message_id": '
+                    '"message_id"}')
+        builtins.print_text.assert_called_once_with(expected % (now, now))
 
     @patch('amtk.apps.record.messages')
     def test_record(self, messages):
@@ -282,11 +289,16 @@ class Integration(unittest.TestCase):
     '''
     Ensures that play can play recordings and vice versa.
     '''
+    @patch('amtk.apps.record.time')
     @patch('amtk.apps.record.builtins')
-    def run_record(self, properties, body, builtins):
+    def run_record(self, properties, body, builtins, _time):
         '''
         Used to run the record portion of the test.
         '''
+        # Mock time.now. server_time should not be mocked.
+        _time.server_time = time.server_time
+        _time.now.return_value = TIMESTAMPS['current'][1]
+
         # Create test data.
         channel = MagicMock()
         method = MagicMock()
@@ -392,10 +404,12 @@ class Integration(unittest.TestCase):
         body = basic_publish.call_args[1]['body']
 
         # Record the message.
-        result = self.run_record(prop, body)
+        result = json.loads(self.run_record(prop, body))
 
         # Check the line.
-        self.assertEqual(result, line)
+        expected = json.loads(line)
+        expected['record_time'] = TIMESTAMPS['current'][1]
+        self.assertEqual(result, expected)
 
 
 # Run the tests if the file is called directly.
