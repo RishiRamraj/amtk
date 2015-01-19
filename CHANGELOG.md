@@ -6,15 +6,22 @@
 
 ### Features
 
-* [Python 3 support.](https://github.com/RishiRamraj/amtk/issues/5)
-* [Add examples to the documentation.](https://github.com/RishiRamraj/amtk/issues/4)
-* [Merging recordings.](https://github.com/RishiRamraj/amtk/issues/2)
+* [bug/5](https://github.com/RishiRamraj/amtk/issues/5): Python 3 support.
+* [bug/4](https://github.com/RishiRamraj/amtk/issues/4): Add examples to the documentation.
+
+## 0.2.0
+ 
+[Diff](https://github.com/RishiRamraj/amtk/compare/0.1.1...0.2.0)
+
+### Features
+
+* [feature/merge](https://github.com/RishiRamraj/amtk/issues/2)-[change](https://github.com/RishiRamraj/amtk/commits/feature/merge): Added the amtk.merge tool.
  
 ### Bugs
 
-* [Timing accuracy & receive time.](https://github.com/RishiRamraj/amtk/issues/3)
-* [Timestamps should be reported as legible dates not integers.](https://github.com/RishiRamraj/amtk/issues/6)
-* [Need an integration test for record and play.](https://github.com/RishiRamraj/amtk/issues/7)
+* [bug/3](https://github.com/RishiRamraj/amtk/issues/3)-[change](https://github.com/RishiRamraj/amtk/commits/bug/3): Timing accuracy & receive time.
+* [bug/6](https://github.com/RishiRamraj/amtk/issues/6)-[change](https://github.com/RishiRamraj/amtk/commits/bug/6): Timestamps should be reported as legible dates not integers. Note that this change is breaking for recordings on previous versions.
+* [bug/7](https://github.com/RishiRamraj/amtk/issues/7)-[change](https://github.com/RishiRamraj/amtk/commits/bug/7): Need an integration test for record and play.
 
 ## 0.1.1
  
