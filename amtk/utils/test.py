@@ -233,6 +233,34 @@ class Options(unittest.TestCase):
         # Run the test.
         options.files(parser)
 
+    def test_order(self):
+        '''
+        A test for the order function.
+        '''
+        # Create test data.
+        description = 'test'
+        parameters = (options.order, )
+
+        # Create test cases.
+        cases = (
+            {
+                'test': '',
+                'expected': {
+                    'order': 'record',
+                },
+            },
+            {
+                'test': '--order created',
+                'expected': {
+                    'order': 'created',
+                },
+            },
+        )
+
+        # Run the test.
+        parser = options.parse(description, parameters)
+        self.check_parser(parser, cases)
+
 
 class Messages(unittest.TestCase):
     '''

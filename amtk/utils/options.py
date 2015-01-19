@@ -9,8 +9,10 @@ def order(parser):
     Used to order the merge of data.
     '''
     help = 'The order of the messages in the merge.'
-    type = argparse.FileType('r')
-    parser.add_argument('order', type=type, help=help, nargs='+')
+    name = '--order'
+    default = 'record'
+    choices = ('record', 'created')
+    parser.add_argument(name, choices=choices, default=default, help=help)
 
 
 def files(parser):
