@@ -11,7 +11,7 @@ import dateutil.parser
 from amtk.utils import time
 
 # To be tested.
-from amtk.apps import record, play
+from amtk.apps import record, play, merge
 
 
 # Timestamp constants.
@@ -19,7 +19,7 @@ parse = lambda value: datetime.datetime.fromtimestamp(value, pytz.utc)
 TIMESTAMPS = {
     'now': (
         1420070460,
-        '2015-01-01T00:01:00.01+00:00',
+        '2015-01-01T00:01:00.001+00:00',
         dateutil.parser.parse('2015-01-01T00:01:00.001+00:00'),
     ),
     'last': (
@@ -33,6 +33,25 @@ TIMESTAMPS = {
         parse(1421603064),
     ),
 }
+
+# Test cases for the merge module.
+CONTENT = (
+    '{"body": "test", "creation_time": "2015-01-01T00:00:00+00:00", ',
+    ('{"body": "test", "creation_time": null, "record_time": null, '
+     '"message_id": "4"}'),
+    ('{"body": "test", "creation_time": "2015-01-01T00:00:00+00:00", '
+     '"record_time": "2015-01-01T00:00:00+00:00", "message_id": null}'),
+    ('{"body": "test", "creation_time": "2015-01-01T00:00:00+00:00", '
+     '"record_time": "2015-01-01T00:00:00+00:00", "message_id": "1"}'),
+    ('{"body": "test", "creation_time": "2015-01-01T00:00:00+00:00", '
+     '"record_time": "2015-01-01T00:00:00+00:00", "message_id": "1"}'),
+    ('{"body": "test", "creation_time": "2015-01-01T00:00:00+00:00", '
+     '"record_time": "2015-01-01T00:00:00+00:00", "message_id": "2"}'),
+    ('{"body": "test", "creation_time": "2015-01-01T00:00:01+00:00", '
+     '"record_time": "2015-01-01T00:00:01+00:00", "message_id": "3"}'),
+    ('{"body": "test", "creation_time": "2015-01-01T00:00:02+00:00", '
+     '"record_time": "2015-01-01T00:00:02+00:00", "message_id": "4"}'),
+)
 
 
 class Record(unittest.TestCase):
@@ -96,7 +115,7 @@ class Record(unittest.TestCase):
 
     @patch('amtk.apps.record.record')
     @patch('amtk.apps.record.options')
-    def test_main(self, options, record):
+    def test_main(self, options, _record):
         '''
         A test for the main function.
         '''
@@ -275,7 +294,7 @@ class Play(unittest.TestCase):
 
         # Check the result.
         self.assertFalse(builtins.print_text.called)
-        self.assertEqual(result, TIMESTAMPS['created'][2])
+        self.assertEqual(result, TIMESTAMPS['now'][2])
 
         # Check message properties.
         expected = {
@@ -365,12 +384,71 @@ class Play(unittest.TestCase):
 
     @patch('amtk.apps.play.play')
     @patch('amtk.apps.play.options')
-    def test_main(self, options, play):
+    def test_main(self, options, _play):
         '''
         A test for the main function.
         '''
         # Run the test.
         play.main()
+
+
+class Merge(unittest.TestCase):
+    '''
+    Tests for functions in the merge module.
+    '''
+    @patch('amtk.apps.merge.builtins')
+    def check_merge(self, order, builtins):
+        '''
+        A test for the merge function.
+        '''
+        file = unittest.file
+
+        # Create fake data.
+        args = MagicMock()
+        args.order = order
+        args.files = (
+            file((CONTENT[0], CONTENT[3], CONTENT[4])),
+            file((CONTENT[1], CONTENT[2], CONTENT[5])),
+            file((CONTENT[6], CONTENT[7])),
+        )
+
+        # Run the test.
+        merge.merge(args)
+
+        # Check the result.
+        result = builtins.print_text.call_args_list
+        expected = [
+            json.loads(CONTENT[4]),
+            json.loads(CONTENT[5]),
+            json.loads(CONTENT[6]),
+            json.loads(CONTENT[7]),
+        ]
+        for index, value in enumerate(result):
+            data = json.loads(value[0][0])
+            self.assertEqual(data, expected[index])
+
+    def test_merge_record(self):
+        '''
+        Test merge ordered by record.
+        '''
+        # Run the test.
+        self.check_merge('record')
+
+    def test_merge_created(self):
+        '''
+        Test merge ordered by created.
+        '''
+        # Run the test.
+        self.check_merge('created')
+
+    @patch('amtk.apps.merge.merge')
+    @patch('amtk.apps.merge.options')
+    def test_main(self, options, _merge):
+        '''
+        A test for the main function.
+        '''
+        # Run the test.
+        merge.main()
 
 
 class Integration(unittest.TestCase):

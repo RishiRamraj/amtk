@@ -29,7 +29,7 @@ def wait_timestamp(last, now):
     Wait for the difference between now and last.
     '''
     # Exit early.
-    if last is None:
+    if last is None or now is None:
         return
 
     # Get the time delta.
@@ -83,11 +83,9 @@ def publish(last, wait, args, channel, line):
     record_time = parser(data['record_time'])
 
     # Wait to publish.
-    now = {
-        'created': creation_time,
-        'record': record_time,
-    }
-    wait(last, now.get(args.timing))
+    timings = {'created': creation_time, 'record': record_time}
+    now = timings.get(args.timing)
+    wait(last, now)
 
     # Get publish parameters.
     key = args.routing_key
@@ -118,7 +116,7 @@ def publish(last, wait, args, channel, line):
         immediate=immediate,
     )
 
-    return creation_time
+    return now
 
 
 def play(args):
