@@ -49,6 +49,7 @@ setup(
         'console_scripts': [
             'amtk.play = amtk.apps.play:main',
             'amtk.record = amtk.apps.record:main',
+            'amtk.merge = amtk.apps.merge:main',
         ],
     },
 )

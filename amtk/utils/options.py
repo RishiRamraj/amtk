@@ -4,13 +4,22 @@
 import argparse
 
 
+def order(parser):
+    '''
+    Used to order the merge of data.
+    '''
+    help = 'The order of the messages in the merge.'
+    type = argparse.FileType('r')
+    parser.add_argument('order', type=type, help=help, nargs='+')
+
+
 def files(parser):
     '''
     Adds a varidac positional option to list files.
     '''
     help = 'The source data files.'
     type = argparse.FileType('r')
-    parser.add_argument('files', type=type, help=help, nargs='*')
+    parser.add_argument('files', type=type, help=help, nargs='+')
 
 
 def data(parser):
