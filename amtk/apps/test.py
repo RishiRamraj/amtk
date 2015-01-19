@@ -115,13 +115,32 @@ class Play(unittest.TestCase):
         '''
         # Create test data.
         delta = 1.1
+        last = TIMESTAMPS['last'][2]
+        now = TIMESTAMPS['now'][2]
 
         # Run the test.
         result = play.wait_delta(delta)
-        result(None, None)
+        result(last, now)
 
         # Check the result.
         time.sleep.assert_called_once_with(1.1)
+
+    @patch('amtk.apps.play.time')
+    def test_wait_delta_none(self, time):
+        '''
+        Tests the wait_delta function with None for last.
+        '''
+        # Create test data.
+        delta = 1.1
+        last = None
+        now = TIMESTAMPS['now'][2]
+
+        # Run the test.
+        result = play.wait_delta(delta)
+        result(last, now)
+
+        # Check the result.
+        self.assertFalse(time.sleep.called)
 
     @patch('amtk.apps.play.time')
     def test_wait_timestamp(self, time):

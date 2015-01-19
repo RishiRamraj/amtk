@@ -15,6 +15,10 @@ def wait_delta(delta):
     Wait a specified delta number of seconds.
     '''
     def result(last, now):
+        # Exit early.
+        if last is None:
+            return
+
         time.sleep(delta)
 
     return result
