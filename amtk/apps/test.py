@@ -17,7 +17,7 @@ from amtk.apps import record, play
 # Timestamp constants.
 parse = lambda value: datetime.datetime.fromtimestamp(value, pytz.utc)
 TIMESTAMPS = {
-    'current': (
+    'now': (
         1420070460,
         '2015-01-01T00:01:00.01+00:00',
         dateutil.parser.parse('2015-01-01T00:01:00.001+00:00'),
@@ -45,11 +45,12 @@ class Record(unittest.TestCase):
         '''
         A test for the callback function.
         '''
-        now = TIMESTAMPS['created'][1]
+        created = TIMESTAMPS['created']
+        now = TIMESTAMPS['now']
 
         # Mock time.now. server_time should not be mocked.
         _time.server_time = time.server_time
-        _time.now.return_value = now
+        _time.now.return_value = now[1]
 
         # Create test data.
         channel = MagicMock()
@@ -63,7 +64,7 @@ class Record(unittest.TestCase):
         properties.correlation_id = 'correlation_id'
         properties.content_type = 'content_type'
         properties.content_encoding = 'content_encoding'
-        properties.timestamp = TIMESTAMPS['created'][0]
+        properties.timestamp = created[0]
         properties.expiration = None
         body = 'body'
 
@@ -78,7 +79,8 @@ class Record(unittest.TestCase):
                     '"content_encoding", "reply_to": "reply_to", '
                     '"absolute_expiry_time": null, "message_id": '
                     '"message_id"}')
-        builtins.print_text.assert_called_once_with(expected % (now, now))
+        values = (created[1], now[1])
+        builtins.print_text.assert_called_once_with(expected % values)
 
     @patch('amtk.apps.record.messages')
     def test_record(self, messages):
@@ -107,51 +109,117 @@ class Play(unittest.TestCase):
     Tests for functions in the play module.
     '''
     @patch('amtk.apps.play.time')
-    def check_wait(self, timing, last, expected, time):
+    def test_wait_delta(self, time):
         '''
-        Many of the tests for wait follow the same pattern.
+        Tests the wait_delta function.
+        '''
+        # Create test data.
+        delta = 1.1
+
+        # Run the test.
+        result = play.wait_delta(delta)
+        result(None, None)
+
+        # Check the result.
+        time.sleep.assert_called_once_with(1.1)
+
+    @patch('amtk.apps.play.time')
+    def test_wait_timestamp(self, time):
+        '''
+        Tests the wait_timestamp function.
+        '''
+        # Create test data.
+        last = TIMESTAMPS['last'][2]
+        now = TIMESTAMPS['now'][2]
+
+        # Run the test.
+        play.wait_timestamp(last, now)
+
+        # Check the result.
+        time.sleep.assert_called_once_with(60.001)
+
+    @patch('amtk.apps.play.time')
+    def test_wait_timestamp_none(self, time):
+        '''
+        Tests the wait_timestamp function with a None last.
+        '''
+        # Create test data.
+        last = None
+        now = TIMESTAMPS['now'][2]
+
+        # Run the test.
+        play.wait_timestamp(last, now)
+
+        # Check the result.
+        self.assertFalse(time.sleep.called)
+
+    def check_get_timing(self, timing):
+        '''
+        Tests the get_timing function.
         '''
         # Create test data.
         args = MagicMock()
         args.timing = timing
-        last = last
-        current = TIMESTAMPS['current'][2]
 
         # Run the test.
-        play.wait(args, last, current)
+        return play.get_timing(args)
 
-        # Check the result.
-        time.sleep.assert_called_once_with(expected)
-
-    def test_wait(self):
+    def test_get_timing_record(self):
         '''
-        Tests the wait function.
+        Tests the get_timing function in record mode.
         '''
-        last = TIMESTAMPS['last'][2]
+        result = self.check_get_timing('record')
+        self.assertIs(result, play.wait_timestamp)
 
-        # Run the tests.
-        self.check_wait(None, last, 60.001)
-        self.check_wait(None, None, 0)
-        self.check_wait(0, last, 0)
-        self.check_wait(1, last, 1)
-        self.check_wait(-1, last, 60.001)
+    def test_get_timing_created(self):
+        '''
+        Tests the get_timing function in created mode.
+        '''
+        result = self.check_get_timing('created')
+        self.assertIs(result, play.wait_timestamp)
+
+    @patch('amtk.apps.play.wait_delta')
+    def test_get_timing_delta(self, wait_delta):
+        '''
+        A positive test for get_timing with a delta.
+        '''
+        self.check_get_timing('1.1')
+        wait_delta.assert_called_once_with(1.1)
+
+    def test_get_timing_delta_invalid(self):
+        '''
+        A positive test for get_timing with a delta.
+        '''
+        expected = 'must either be'
+        with self.assertRaisesRegexp(ValueError, expected):
+            self.check_get_timing('invalid')
+
+    def test_get_timing_delta_negative(self):
+        '''
+        A positive test for get_timing with a delta.
+        '''
+        expected = 'positive'
+        with self.assertRaisesRegexp(ValueError, expected):
+            self.check_get_timing('-1.1')
 
     @patch('amtk.apps.play.pika')
-    @patch('amtk.apps.play.wait')
-    def check_publish(self, routing_key, wait, pika, line=None):
+    def check_publish(self, routing_key, pika, line=None):
         '''
         Structure for testing the publish function.
         '''
         # Create fake data.
-        timestamp = None
+        last = None
+        wait = MagicMock()
         args = MagicMock()
         args.routing_key = routing_key
         args.mandatory = 'no'
         args.immediate = 'no'
         args.exchange = 'test'
+        args.timing = 'record'
         channel = MagicMock()
         data = {
             'creation_time': TIMESTAMPS['created'][1],
+            'record_time': TIMESTAMPS['now'][1],
             'routing_key': 'routing_key',
             'content_type': 'content_type',
             'content_encoding': 'content_encoding',
@@ -165,7 +233,7 @@ class Play(unittest.TestCase):
         line = line if line else json.dumps(data)
 
         # Run the test.
-        result = play.publish(timestamp, args, channel, line)
+        result = play.publish(last, wait, args, channel, line)
 
         # Return the results.
         properties = pika.spec.BasicProperties
@@ -255,6 +323,7 @@ class Play(unittest.TestCase):
         '''
         # Create fake data.
         args = MagicMock()
+        args.timing = 'record'
         connection = MagicMock()
         channel = MagicMock()
         messages.connect.return_value = (
@@ -297,7 +366,7 @@ class Integration(unittest.TestCase):
         '''
         # Mock time.now. server_time should not be mocked.
         _time.server_time = time.server_time
-        _time.now.return_value = TIMESTAMPS['current'][1]
+        _time.now.return_value = TIMESTAMPS['now'][1]
 
         # Create test data.
         channel = MagicMock()
@@ -312,22 +381,23 @@ class Integration(unittest.TestCase):
         return builtins.print_text.call_args[0][0]
 
     @patch('amtk.apps.play.pika')
-    @patch('amtk.apps.play.wait')
-    def run_play(self, line, wait, pika):
+    def run_play(self, line, pika):
         '''
         Used to run the play portion of the test.
         '''
         # Create fake data.
-        timestamp = None
+        last = None
+        wait = MagicMock()
         args = MagicMock()
         args.mandatory = 'no'
         args.immediate = 'no'
+        args.timing = 'record'
         args.exchange = 'exchange'
         args.routing_key = 'routing_key'
         channel = MagicMock()
 
         # Run the test.
-        result = play.publish(timestamp, args, channel, line)
+        result = play.publish(last, wait, args, channel, line)
 
         # Return the results.
         properties = pika.spec.BasicProperties
@@ -346,7 +416,7 @@ class Integration(unittest.TestCase):
         properties.correlation_id = 'correlation_id'
         properties.content_type = 'content_type'
         properties.content_encoding = 'content_encoding'
-        properties.timestamp = TIMESTAMPS['created'][0]
+        properties.timestamp = TIMESTAMPS['now'][0]
         properties.expiration = None
         body = 'body'
 
@@ -360,7 +430,7 @@ class Integration(unittest.TestCase):
         # Check properties.
         expected = {
             'user_id': u'user_id',
-            'timestamp': TIMESTAMPS['created'][0],
+            'timestamp': TIMESTAMPS['now'][0],
             'correlation_id': u'correlation_id',
             'expiration': None,
             'content_type': u'content_type',
@@ -380,11 +450,13 @@ class Integration(unittest.TestCase):
         '''
         # Create test data.
         line = ('{"body": "body", "exchange": "exchange", "creation_time": '
-                '"2015-01-18T17:44:24+00:00", "correlation_id": '
-                '"correlation_id", "content_type": "content_type", "user_id": '
-                '"user_id", "routing_key": "routing_key", "content_encoding": '
+                '"%s", "correlation_id": "correlation_id", "content_type": '
+                '"content_type", "user_id": "user_id", "record_time": "%s", '
+                '"routing_key": "routing_key", "content_encoding": '
                 '"content_encoding", "reply_to": "reply_to", '
                 '"absolute_expiry_time": null, "message_id": "message_id"}')
+        values = (TIMESTAMPS['created'][1], TIMESTAMPS['now'][1])
+        line = line % values
 
         # Play the message.
         result = self.run_play(line)
@@ -404,12 +476,10 @@ class Integration(unittest.TestCase):
         body = basic_publish.call_args[1]['body']
 
         # Record the message.
-        result = json.loads(self.run_record(prop, body))
+        result = self.run_record(prop, body)
 
         # Check the line.
-        expected = json.loads(line)
-        expected['record_time'] = TIMESTAMPS['current'][1]
-        self.assertEqual(result, expected)
+        self.assertEqual(result, line)
 
 
 # Run the tests if the file is called directly.
