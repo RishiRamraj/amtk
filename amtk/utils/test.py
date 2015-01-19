@@ -333,15 +333,21 @@ class Time(unittest.TestCase):
         expected = 1421603064
         self.assertEqual(result, expected)
 
-    def test_now(self):
+    @patch('amtk.utils.time.datetime')
+    def test_now(self, _datetime):
         '''
-        A positive test for now.
+        A positive test for now, for completion.
         '''
+        # Create fake data.
+        test = datetime.datetime(2015, 1, 1, tzinfo=pytz.utc)
+        _datetime.datetime.now.return_value = test
+
         # Run the test.
         result = time.now()
 
         # Check the result.
-        self.assertIs(result.tzinfo, pytz.utc)
+        expected = '2015-01-01T00:00:00+00:00'
+        self.assertEqual(result, expected)
 
 
 class Misc(unittest.TestCase):
