@@ -165,13 +165,13 @@ class Options(unittest.TestCase):
             {
                 'test': '',
                 'expected': {
-                    'timing': None,
+                    'timing': 'record',
                 },
             },
             {
                 'test': '--timing 0',
                 'expected': {
-                    'timing': 0,
+                    'timing': '0',
                 },
             },
         )
@@ -331,6 +331,22 @@ class Time(unittest.TestCase):
 
         # Check the result.
         expected = 1421603064
+        self.assertEqual(result, expected)
+
+    @patch('amtk.utils.time.datetime')
+    def test_now(self, _datetime):
+        '''
+        A positive test for now, for completion.
+        '''
+        # Create fake data.
+        test = datetime.datetime(2015, 1, 1, tzinfo=pytz.utc)
+        _datetime.datetime.now.return_value = test
+
+        # Run the test.
+        result = time.now()
+
+        # Check the result.
+        expected = '2015-01-01T00:00:00+00:00'
         self.assertEqual(result, expected)
 
 

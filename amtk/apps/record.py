@@ -21,6 +21,7 @@ def callback(channel, method, properties, body):
         'content_encoding': properties.content_encoding,
         'absolute_expiry_time': time.server_time(properties.expiration),
         'creation_time': time.server_time(properties.timestamp),
+        'record_time': time.now(),
         'body': body,
     }
 

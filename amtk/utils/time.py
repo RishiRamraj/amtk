@@ -29,3 +29,10 @@ def timestamp(value):
     Returns the timestamp of a datetime object.
     '''
     return int((value - EPOCH).total_seconds())
+
+
+def now():
+    '''
+    Returns a datetime now object at utc. For convenience.
+    '''
+    return datetime.datetime.now(tz=pytz.utc).isoformat()
