@@ -6,6 +6,7 @@ from amtk.utils import testcase as unittest
 from mock import patch, MagicMock
 import datetime
 import pytz
+import argparse
 
 # To be tested.
 from amtk.utils import options, messages, time, misc
@@ -212,14 +213,25 @@ class Options(unittest.TestCase):
 
     def test_data(self):
         '''
-        A test for the data function. Data is a file type, so testing it using
+        A test for the data function. data is a file type, so testing it using
         the conventional method is not possible.
         '''
         # Create test data.
-        parser = MagicMock()
+        parser = argparse.ArgumentParser()
 
         # Run the test.
         options.data(parser)
+
+    def test_files(self):
+        '''
+        A test for the files function. files is a file type, so testing it
+        using the conventional method is not possible.
+        '''
+        # Create test data.
+        parser = argparse.ArgumentParser()
+
+        # Run the test.
+        options.files(parser)
 
 
 class Messages(unittest.TestCase):

@@ -4,6 +4,15 @@
 import argparse
 
 
+def files(parser):
+    '''
+    Adds a varidac positional option to list files.
+    '''
+    help = 'The source data files.'
+    type = argparse.FileType('r')
+    parser.add_argument('files', type=type, help=help, nargs='*')
+
+
 def data(parser):
     '''
     Adds a data positional argument as readable.
