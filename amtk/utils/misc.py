@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from contextlib import contextmanager
+
 
 def optional(function):
     '''
@@ -11,3 +13,16 @@ def optional(function):
         return None if value is None else function(value)
 
     return result
+
+
+@contextmanager
+def suppress_interrupt():
+    '''
+    To ensure that KeyboardInterrupt doesn't throw a stack trace, this context
+    manager suppresses the exception.
+    '''
+    try:
+        yield
+
+    except KeyboardInterrupt:
+        pass

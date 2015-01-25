@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import sys
 
 
 def order(parser):
@@ -24,13 +25,26 @@ def files(parser):
     parser.add_argument('files', type=type, help=help, nargs='+')
 
 
-def data(parser):
+def input(parser):
     '''
-    Adds a data positional argument as readable.
+    Adds an input argument.
     '''
-    help = 'The source data file.'
+    name = 'input'
+    help = 'The input data file. Defaults to stdin.'
     type = argparse.FileType('r')
-    parser.add_argument('data', type=type, help=help)
+    default = sys.stdin
+    parser.add_argument(name, nargs='?', type=type, help=help, default=default)
+
+
+def output(parser):
+    '''
+    Adds an output argument.
+    '''
+    name = 'output'
+    help = 'The output data file. Defaults to stdout.'
+    type = argparse.FileType('w')
+    default = sys.stdout
+    parser.add_argument(name, nargs='?', type=type, help=help, default=default)
 
 
 def timing(parser):
