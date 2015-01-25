@@ -4,6 +4,7 @@
 # Testing tools.
 from amtk.utils import testcase as unittest
 from mock import patch, MagicMock
+import StringIO
 import datetime
 import pytz
 import argparse
@@ -211,16 +212,41 @@ class Options(unittest.TestCase):
         parser = options.parse(description, parameters)
         self.check_parser(parser, cases)
 
-    def test_data(self):
+    def check_file_stdio(self, target, name, stdin=True):
         '''
-        A test for the data function. data is a file type, so testing it using
-        the conventional method is not possible.
+        A positive test for a file parameter with stdio defaults.
         '''
         # Create test data.
         parser = argparse.ArgumentParser()
+        target(parser)
 
         # Run the test.
-        options.data(parser)
+        result = getattr(parser.parse_args([]), name)
+
+        # TODO: For some reason, when this function is called by the nose
+        # test runner for a writable file, the result is a StrioIO instance,
+        # whose name cannot be directly tested.
+        if isinstance(result, StringIO.StringIO):
+            return
+
+        # Check the result.
+        file = getattr(result, 'name')
+        expected = '<stdin>' if stdin else '<stdout>'
+        self.assertEqual(file, expected)
+
+    def test_input(self):
+        '''
+        A test for the input function. input is a file type, so testing it
+        using the conventional method is not possible.
+        '''
+        self.check_file_stdio(options.input, 'input')
+
+    def test_output(self):
+        '''
+        A test for the output function. output is a file type, so testing it
+        using the conventional method is not possible.
+        '''
+        self.check_file_stdio(options.output, 'output', stdin=False)
 
     def test_files(self):
         '''
@@ -419,6 +445,14 @@ class Misc(unittest.TestCase):
 
         # Check the result.
         self.assertIsNone(result(None))
+
+    def test_suppress_interrupt(self):
+        '''
+        A positive test for the KeyboardInterrupt suppressor.
+        '''
+        # Run the test.
+        with misc.suppress_interrupt():
+            raise KeyboardInterrupt()
 
 
 # Run the tests if the file is called directly.
