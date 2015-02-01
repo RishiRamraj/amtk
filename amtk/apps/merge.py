@@ -71,7 +71,11 @@ def main():
                    'result. Note that the message id is used to merge the '
                    'data sets. Messages that cannot be parsed or lack a '
                    'message id are ignored.')
-    parameters = (options.files, options.order)
+    parameters = (
+        options.files,
+        options.order,
+        options.version,
+    )
     args = options.parse(description, parameters).parse_args()
 
     # Merge files.

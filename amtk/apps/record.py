@@ -79,6 +79,7 @@ def main():
         options.amqp(routing_key='routing', queue=True),
         options.prefetch,
         options.output,
+        options.version,
     )
     args = options.parse(description, parameters).parse_args()
 

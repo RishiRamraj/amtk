@@ -287,6 +287,21 @@ class Options(unittest.TestCase):
         parser = options.parse(description, parameters)
         self.check_parser(parser, cases)
 
+    def test_version(self):
+        '''
+        A test for the version function. This function is difficult to test
+        because when parsed, because calling the parser immediately exits
+        the program after printing the version.
+
+        The SystemExit exception can be caught, but the test still pollutes
+        stdout when run.
+        '''
+        # Create test data.
+        parser = argparse.ArgumentParser(prog='test')
+
+        # Run the test.
+        options.version(parser)
+
 
 class Messages(unittest.TestCase):
     '''

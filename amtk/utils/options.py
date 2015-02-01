@@ -1,8 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import pkg_resources
 import argparse
 import sys
+
+
+def version(parser, target='amtk'):
+    '''
+    Adds a version flag to the parser.
+    '''
+    # Meta-data about the package comes from pkg_resources.
+    metadata = pkg_resources.require(target)[0]
+    version = '%(prog)s ' + metadata.version
+    parser.add_argument('--version', action='version', version=version)
 
 
 def order(parser):
