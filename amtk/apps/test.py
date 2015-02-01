@@ -83,6 +83,7 @@ class Record(unittest.TestCase):
         properties.correlation_id = 'correlation_id'
         properties.content_type = 'content_type'
         properties.content_encoding = 'content_encoding'
+        properties.headers = {'test': 'test'}
         properties.timestamp = created[0]
         properties.expiration = None
         body = 'body'
@@ -94,10 +95,10 @@ class Record(unittest.TestCase):
         expected = ('{"body": "body", "exchange": "exchange", "creation_time":'
                     ' "%s", "correlation_id": "correlation_id", "content_type"'
                     ': "content_type", "user_id": "user_id", "record_time": '
-                    '"%s", "routing_key": "routing_key", "content_encoding": '
-                    '"content_encoding", "reply_to": "reply_to", '
-                    '"absolute_expiry_time": null, "message_id": '
-                    '"message_id"}\n')
+                    '"%s", "routing_key": "routing_key", "headers": {"test": '
+                    '"test"}, "content_encoding": "content_encoding", '
+                    '"reply_to": "reply_to", "absolute_expiry_time": null, '
+                    '"message_id": "message_id"}\n')
         values = (created[1], now[1])
         args.output.write.assert_called_once_with(expected % values)
 
@@ -269,6 +270,7 @@ class Play(unittest.TestCase):
             'message_id': 'message_id',
             'user_id': 'user_id',
             'body': 'body',
+            'headers': {'test': 'test'},
         }
         line = line if line else json.dumps(data)
 
@@ -304,6 +306,7 @@ class Play(unittest.TestCase):
             'timestamp': TIMESTAMPS['created'][0],
             'correlation_id': u'correlation_id',
             'expiration': None,
+            'headers': {'test': 'test'},
             'content_type': u'content_type',
             'reply_to': u'reply_to',
             'message_id': u'message_id',
@@ -531,6 +534,7 @@ class Integration(unittest.TestCase):
         properties.content_encoding = 'content_encoding'
         properties.timestamp = TIMESTAMPS['now'][0]
         properties.expiration = None
+        properties.headers = {'test': 'test'}
         body = 'body'
 
         # Record the message.
@@ -550,6 +554,7 @@ class Integration(unittest.TestCase):
             'reply_to': u'reply_to',
             'message_id': u'message_id',
             'content_encoding': u'content_encoding',
+            'headers': {'test': u'test'},
         }
         self.assertEqual(properties.call_args[1], expected)
 
@@ -565,9 +570,10 @@ class Integration(unittest.TestCase):
         line = ('{"body": "body", "exchange": "exchange", "creation_time": '
                 '"%s", "correlation_id": "correlation_id", "content_type": '
                 '"content_type", "user_id": "user_id", "record_time": "%s", '
-                '"routing_key": "routing_key", "content_encoding": '
-                '"content_encoding", "reply_to": "reply_to", '
-                '"absolute_expiry_time": null, "message_id": "message_id"}\n')
+                '"routing_key": "routing_key", "headers": {"test": "test"}, '
+                '"content_encoding": "content_encoding", "reply_to": '
+                '"reply_to", "absolute_expiry_time": null, "message_id": '
+                '"message_id"}\n')
         values = (TIMESTAMPS['created'][1], TIMESTAMPS['now'][1])
         line = line % values
 
@@ -584,6 +590,7 @@ class Integration(unittest.TestCase):
         prop.correlation_id = properties['correlation_id']
         prop.content_type = properties['content_type']
         prop.content_encoding = properties['content_encoding']
+        prop.headers = {'test': 'test'}
         prop.timestamp = properties['timestamp']
         prop.expiration = properties['expiration']
         body = basic_publish.call_args[1]['body']
