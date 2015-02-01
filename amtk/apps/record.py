@@ -23,6 +23,7 @@ def write(args, channel, method, properties, body):
         'creation_time': time.server_time(properties.timestamp),
         'record_time': time.now(),
         'body': body,
+        'headers': properties.headers,
     }
 
     # Write a single line of json.
