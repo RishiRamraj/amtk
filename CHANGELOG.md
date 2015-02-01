@@ -15,7 +15,7 @@
  
 ### Bugs
 
-* [bug/13](https://github.com/RishiRamraj/amtk/issues/13)-[change](https://github.com/RishiRamraj/amtk/commits/bug/13): Headers are now optional in recordings.
+* [bug/13](https://github.com/RishiRamraj/amtk/issues/13)-[change](https://github.com/RishiRamraj/amtk/commit/6b1fcd): Headers are now optional in recordings.
 
 ## 0.3.0
  
@@ -51,8 +51,6 @@
 
 ## 0.1.0
 
-[Diff](https://github.com/RishiRamraj/amtk/compare/0.1.0...0.0.0)
- 
 ### Features
 
 * [feature/record](https://github.com/RishiRamraj/amtk/commits/feature/record): Added the amtk.record tool.
