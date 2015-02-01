@@ -8,6 +8,16 @@
 
 * [bug/5](https://github.com/RishiRamraj/amtk/issues/5): Python 3 support.
 * [bug/4](https://github.com/RishiRamraj/amtk/issues/4): Add examples to the documentation.
+* [bug/9](https://github.com/RishiRamraj/amtk/issues/9): Support headers.
+
+## 0.3.0
+ 
+[Diff](https://github.com/RishiRamraj/amtk/compare/0.2.0...0.3.0)
+
+### Features
+
+* [feature/version](https://github.com/RishiRamraj/amtk/issues/8)-[change](https://github.com/RishiRamraj/amtk/commits/feature/version): Added a --version flag to all utilities.
+* [feature/stdio](https://github.com/RishiRamraj/amtk/issues/11)-[change](https://github.com/RishiRamraj/amtk/commits/feature/stdio): Added proper support for stdio.
 
 ## 0.2.0
  
