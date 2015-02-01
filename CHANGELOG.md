@@ -17,7 +17,7 @@
 
 * [feature/version](https://github.com/RishiRamraj/amtk/issues/8)-[change](https://github.com/RishiRamraj/amtk/commits/feature/version): Added a --version flag to all utilities.
 * [feature/stdio](https://github.com/RishiRamraj/amtk/issues/11)-[change](https://github.com/RishiRamraj/amtk/commits/feature/stdio): Added proper support for stdio.
-* [feature/headers](https://github.com/RishiRamraj/amtk/issues/9)-[change](https://github.com/RishiRamraj/amtk/commits/feature/headers): Added support for headers.
+* [feature/headers](https://github.com/RishiRamraj/amtk/issues/9)-[change](https://github.com/RishiRamraj/amtk/commits/feature/headers): Added support for headers. Note that this is a breaking change for playback of existing recordings.
 
 ## 0.2.0
  
