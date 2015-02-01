@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import json
-from amtk.utils import messages, options, builtins, time
+from amtk.utils import messages, options, time, misc
 
 
-def callback(channel, method, properties, body):
+def write(args, channel, method, properties, body):
     '''
     Called when messages are consumed.
     '''
@@ -23,10 +23,17 @@ def callback(channel, method, properties, body):
         'creation_time': time.server_time(properties.timestamp),
         'record_time': time.now(),
         'body': body,
+        'headers': properties.headers,
     }
 
     # Write a single line of json.
-    builtins.print_text(json.dumps(data))
+    args.output.write(json.dumps(data) + '\n')
+
+    # Flush the buffer so that commands that are piped to this utility will
+    # get the next message instantly. This feature is useful if you want to
+    # pipe messages from one exchange to the next; just record and pipe it to
+    # play.
+    args.output.flush()
 
 
 def record(args):
@@ -38,9 +45,13 @@ def record(args):
 
     # Subscribe to the exchange.
     queue = messages.subscribe(channel, args)
+    messages.qos(channel, args)
+
+    # Create a callback that closures over the args parameter.
+    def callback(channel, method, properties, body):
+        write(args, channel, method, properties, body)
 
     # Setup the consumption callback.
-    messages.qos(channel, args)
     channel.basic_consume(
         callback,
         queue=queue,
@@ -48,13 +59,10 @@ def record(args):
         exclusive=True,
     )
 
-    try:
+    # Stop on a keyboard interrupt.
+    with misc.suppress_interrupt():
         # Start consuming messages.
         channel.start_consuming()
-
-    except KeyboardInterrupt:
-        # Stop on a keyboard interrupt.
-        pass
 
     # Close the connection.
     channel.close()
@@ -71,6 +79,8 @@ def main():
     parameters = (
         options.amqp(routing_key='routing', queue=True),
         options.prefetch,
+        options.output,
+        options.version,
     )
     args = options.parse(description, parameters).parse_args()
 

@@ -84,7 +84,11 @@ def publish(last, wait, args, channel, line):
 
     # Wait to publish.
     timings = {'created': creation_time, 'record': record_time}
-    now = timings.get(args.timing)
+    # In order to ensure that the second call to wait_delta (when the timing is
+    # set explicitly) does not exit early the default return value for now is
+    # set to True. That way, on the first message, the loop will ignore the
+    # timing. However, the timing will be respected for subsequent runs.
+    now = timings.get(args.timing, True)
     wait(last, now)
 
     # Get publish parameters.
@@ -98,6 +102,7 @@ def publish(last, wait, args, channel, line):
     properties = pika.spec.BasicProperties(
         content_type=data['content_type'],
         content_encoding=data['content_encoding'],
+        headers=data['headers'],
         correlation_id=data['correlation_id'],
         reply_to=data['reply_to'],
         expiration=parser(expiry_time),
@@ -130,10 +135,14 @@ def play(args):
     wait = get_timing(args)
     last = None
 
-    # Read the data.
-    for line in args.data.readlines():
+    # Stream the data in.
+    line = args.input.readline()
+    while line:
         # Publish the data.
         last = publish(last, wait, args, channel, line)
+
+        # Get the next line.
+        line = args.input.readline()
 
     # Close the connection.
     channel.close()
@@ -148,12 +157,14 @@ def main():
     description = ('Reads messages from stdin and publishes them. The '
                    'exchange should be created before this tool is used.')
     parameters = (
-        options.data,
         options.amqp(routing_key='play', queue=False),
         options.publish,
         options.timing,
+        options.input,
+        options.version,
     )
     args = options.parse(description, parameters).parse_args()
 
     # Run until the user interrupts execution.
-    play(args)
+    with misc.suppress_interrupt():
+        play(args)

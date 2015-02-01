@@ -27,8 +27,8 @@ one line in the output.
 usage: amtk.record [-h] [--queue QUEUE] [--user USER] [--password PASSWORD]
                    [--host HOST] [--port PORT] [--virtual_host VIRTUAL_HOST]
                    [--prefetch_size PREFETCH_SIZE]
-                   [--prefetch_count PREFETCH_COUNT]
-                   exchange routing_key
+                   [--prefetch_count PREFETCH_COUNT] [--version]
+                   exchange routing_key [output]
 
 Reads messages from the queue and prints them. The exchange should be created
 before this tool is used.
@@ -36,6 +36,7 @@ before this tool is used.
 positional arguments:
   exchange              The messaging exchange.
   routing_key           The routing key used to extract messages.
+  output                The output data file. Defaults to stdout.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -50,6 +51,7 @@ optional arguments:
                         The prefetch window size.
   --prefetch_count PREFETCH_COUNT
                         The prefetch message count.
+  --version             show program's version number and exit
 ```
 
 ## Play
@@ -66,15 +68,15 @@ one line in the input.
 usage: amtk.play [-h] [--routing_key ROUTING_KEY] [--user USER]
                  [--password PASSWORD] [--host HOST] [--port PORT]
                  [--virtual_host VIRTUAL_HOST] [--mandatory {yes,no}]
-                 [--immediate {yes,no}] [--timing TIMING]
-                 data exchange
+                 [--immediate {yes,no}] [--timing TIMING] [--version]
+                 exchange [input]
 
 Reads messages from stdin and publishes them. The exchange should be created
 before this tool is used.
 
 positional arguments:
-  data                  The source data file.
   exchange              The messaging exchange.
+  input                 The input data file. Defaults to stdin.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -95,6 +97,7 @@ optional arguments:
                         timestamp is used; note that this timing is only
                         accurate to the second. If no timing is specified,
                         record is used.
+  --version             show program's version number and exit
 ```
 
 ## Merge
@@ -107,7 +110,8 @@ one line in the output.
 
 
 ```
-usage: amtk.merge [-h] [--order {record,created}] files [files ...]
+usage: amtk.merge [-h] [--order {record,created}] [--version]
+                  files [files ...]
 
 Merge a number of recorded data files and print the result. Note that the
 message id is used to merge the data sets. Messages that cannot be parsed or
@@ -120,4 +124,5 @@ optional arguments:
   -h, --help            show this help message and exit
   --order {record,created}
                         The order of the messages in the merge.
+  --version             show program's version number and exit
 ```

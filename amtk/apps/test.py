@@ -59,10 +59,9 @@ class Record(unittest.TestCase):
     Tests for functions in the record module. These tests are fairly mocky.
     '''
     @patch('amtk.apps.record.time')
-    @patch('amtk.apps.record.builtins')
-    def test_callback(self, builtins, _time):
+    def test_write(self, _time):
         '''
-        A test for the callback function.
+        A test for the write function.
         '''
         created = TIMESTAMPS['created']
         now = TIMESTAMPS['now']
@@ -72,6 +71,7 @@ class Record(unittest.TestCase):
         _time.now.return_value = now[1]
 
         # Create test data.
+        args = MagicMock()
         channel = MagicMock()
         method = MagicMock()
         method.exchange = 'exchange'
@@ -83,23 +83,26 @@ class Record(unittest.TestCase):
         properties.correlation_id = 'correlation_id'
         properties.content_type = 'content_type'
         properties.content_encoding = 'content_encoding'
+        properties.headers = {'test': 'test'}
         properties.timestamp = created[0]
         properties.expiration = None
         body = 'body'
 
         # Run the test.
-        record.callback(channel, method, properties, body)
+        record.write(args, channel, method, properties, body)
 
         # Check the result.
         expected = ('{"body": "body", "exchange": "exchange", "creation_time":'
                     ' "%s", "correlation_id": "correlation_id", "content_type"'
                     ': "content_type", "user_id": "user_id", "record_time": '
-                    '"%s", "routing_key": "routing_key", "content_encoding": '
-                    '"content_encoding", "reply_to": "reply_to", '
-                    '"absolute_expiry_time": null, "message_id": '
-                    '"message_id"}')
+                    '"%s", "routing_key": "routing_key", "headers": {"test": '
+                    '"test"}, "content_encoding": "content_encoding", '
+                    '"reply_to": "reply_to", "absolute_expiry_time": null, '
+                    '"message_id": "message_id"}\n')
         values = (created[1], now[1])
-        builtins.print_text.assert_called_once_with(expected % values)
+        args.output.write.assert_called_once_with(expected % values)
+
+        self.assertTrue(args.output.flush.called)
 
     @patch('amtk.apps.record.messages')
     def test_record(self, messages):
@@ -267,6 +270,7 @@ class Play(unittest.TestCase):
             'message_id': 'message_id',
             'user_id': 'user_id',
             'body': 'body',
+            'headers': {'test': 'test'},
         }
         line = line if line else json.dumps(data)
 
@@ -302,6 +306,7 @@ class Play(unittest.TestCase):
             'timestamp': TIMESTAMPS['created'][0],
             'correlation_id': u'correlation_id',
             'expiration': None,
+            'headers': {'test': 'test'},
             'content_type': u'content_type',
             'reply_to': u'reply_to',
             'message_id': u'message_id',
@@ -368,10 +373,12 @@ class Play(unittest.TestCase):
             connection,
             channel,
         )
-        args.data.readlines.return_value = (
+        args.input.readline.side_effect = (
             json.dumps({'name': 'message 1'}),
-            'invalid',
+            'invalid\n',
+            '\n',
             json.dumps({'name': 'message 2'}),
+            '',
         )
 
         # Run the test.
@@ -388,6 +395,18 @@ class Play(unittest.TestCase):
         '''
         A test for the main function.
         '''
+        # Run the test.
+        play.main()
+
+    @patch('amtk.apps.play.play')
+    @patch('amtk.apps.play.options')
+    def test_main_interrupt(self, options, _play):
+        '''
+        Ensure that KeyboardInterrupt is suppressed.
+        '''
+        # Create fake data.
+        _play.side_effect = KeyboardInterrupt
+
         # Run the test.
         play.main()
 
@@ -456,8 +475,7 @@ class Integration(unittest.TestCase):
     Ensures that play can play recordings and vice versa.
     '''
     @patch('amtk.apps.record.time')
-    @patch('amtk.apps.record.builtins')
-    def run_record(self, properties, body, builtins, _time):
+    def run_record(self, properties, body, _time):
         '''
         Used to run the record portion of the test.
         '''
@@ -466,16 +484,17 @@ class Integration(unittest.TestCase):
         _time.now.return_value = TIMESTAMPS['now'][1]
 
         # Create test data.
+        args = MagicMock()
         channel = MagicMock()
         method = MagicMock()
         method.exchange = 'exchange'
         method.routing_key = 'routing_key'
 
         # Run the test.
-        record.callback(channel, method, properties, body)
+        record.write(args, channel, method, properties, body)
 
         # Return the result.
-        return builtins.print_text.call_args[0][0]
+        return args.output.write.call_args[0][0]
 
     @patch('amtk.apps.play.pika')
     def run_play(self, line, pika):
@@ -515,6 +534,7 @@ class Integration(unittest.TestCase):
         properties.content_encoding = 'content_encoding'
         properties.timestamp = TIMESTAMPS['now'][0]
         properties.expiration = None
+        properties.headers = {'test': 'test'}
         body = 'body'
 
         # Record the message.
@@ -534,6 +554,7 @@ class Integration(unittest.TestCase):
             'reply_to': u'reply_to',
             'message_id': u'message_id',
             'content_encoding': u'content_encoding',
+            'headers': {'test': u'test'},
         }
         self.assertEqual(properties.call_args[1], expected)
 
@@ -549,9 +570,10 @@ class Integration(unittest.TestCase):
         line = ('{"body": "body", "exchange": "exchange", "creation_time": '
                 '"%s", "correlation_id": "correlation_id", "content_type": '
                 '"content_type", "user_id": "user_id", "record_time": "%s", '
-                '"routing_key": "routing_key", "content_encoding": '
-                '"content_encoding", "reply_to": "reply_to", '
-                '"absolute_expiry_time": null, "message_id": "message_id"}')
+                '"routing_key": "routing_key", "headers": {"test": "test"}, '
+                '"content_encoding": "content_encoding", "reply_to": '
+                '"reply_to", "absolute_expiry_time": null, "message_id": '
+                '"message_id"}\n')
         values = (TIMESTAMPS['created'][1], TIMESTAMPS['now'][1])
         line = line % values
 
@@ -568,6 +590,7 @@ class Integration(unittest.TestCase):
         prop.correlation_id = properties['correlation_id']
         prop.content_type = properties['content_type']
         prop.content_encoding = properties['content_encoding']
+        prop.headers = {'test': 'test'}
         prop.timestamp = properties['timestamp']
         prop.expiration = properties['expiration']
         body = basic_publish.call_args[1]['body']
