@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 
-version = '0.3.0'
+version = '0.3.1'
 
 description = '''
 The Asynchronous Message Tool Kit. Utilities for the AMQP.

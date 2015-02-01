@@ -102,7 +102,7 @@ def publish(last, wait, args, channel, line):
     properties = pika.spec.BasicProperties(
         content_type=data['content_type'],
         content_encoding=data['content_encoding'],
-        headers=data['headers'],
+        headers=data.get('headers', {}),
         correlation_id=data['correlation_id'],
         reply_to=data['reply_to'],
         expiration=parser(expiry_time),
