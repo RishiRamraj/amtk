@@ -9,6 +9,14 @@
 * [bug/5](https://github.com/RishiRamraj/amtk/issues/5): Python 3 support.
 * [bug/4](https://github.com/RishiRamraj/amtk/issues/4): Add examples to the documentation.
 
+## 0.3.1
+ 
+[Diff](https://github.com/RishiRamraj/amtk/compare/0.3.0...0.3.1)
+ 
+### Bugs
+
+* [bug/13](https://github.com/RishiRamraj/amtk/issues/13)-[change](https://github.com/RishiRamraj/amtk/commits/bug/13): Headers are now optional in recordings.
+
 ## 0.3.0
  
 [Diff](https://github.com/RishiRamraj/amtk/compare/0.2.0...0.3.0)
