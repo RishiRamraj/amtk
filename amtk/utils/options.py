@@ -6,14 +6,17 @@ import argparse
 import sys
 
 
-def version(parser, target='amtk'):
+def version(target='amtk'):
     '''
     Adds a version flag to the parser.
     '''
-    # Meta-data about the package comes from pkg_resources.
-    metadata = pkg_resources.require(target)[0]
-    version = '%(prog)s ' + metadata.version
-    parser.add_argument('--version', action='version', version=version)
+    def result(parser):
+        # Meta-data about the package comes from pkg_resources.
+        metadata = pkg_resources.require(target)[0]
+        version = '%(prog)s ' + metadata.version
+        parser.add_argument('--version', action='version', version=version)
+
+    return result
 
 
 def order(parser):
@@ -140,7 +143,7 @@ def amqp(routing_key, queue=False):
     return result
 
 
-def parse(description, parameters):
+def configure(description, parameters):
     '''
     Parses command line arguments and returns the args object. options is a
     list of functions that accept the parser as a parameter.

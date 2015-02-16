@@ -9,6 +9,7 @@
 * [bug/5](https://github.com/RishiRamraj/amtk/issues/5): Python 3 support.
 * [bug/4](https://github.com/RishiRamraj/amtk/issues/4): Add examples to the documentation.
 * [bug/14](https://github.com/RishiRamraj/amtk/issues/14): Clean up utils/messages.py so that it can be reused.
+* [bug/15](https://github.com/RishiRamraj/amtk/issues/15): The misc.options.version function parameters are incorrect.
 
 ## 0.3.1
  

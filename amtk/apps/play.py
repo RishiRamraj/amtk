@@ -161,7 +161,7 @@ def main():
         options.publish,
         options.timing,
         options.input,
-        options.version,
+        options.version(),
     )
     args = options.parse(description, parameters).parse_args()
 

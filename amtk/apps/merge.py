@@ -74,7 +74,7 @@ def main():
     parameters = (
         options.files,
         options.order,
-        options.version,
+        options.version(),
     )
     args = options.parse(description, parameters).parse_args()
 
