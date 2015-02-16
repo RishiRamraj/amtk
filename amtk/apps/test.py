@@ -15,7 +15,9 @@ from amtk.apps import record, play, merge
 
 
 # Timestamp constants.
-parse = lambda value: datetime.datetime.fromtimestamp(value, pytz.utc)
+def parse(value):
+    return datetime.datetime.fromtimestamp(value, pytz.utc)
+
 TIMESTAMPS = {
     'now': (
         1420070460,
