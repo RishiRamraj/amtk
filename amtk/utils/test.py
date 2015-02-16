@@ -13,7 +13,33 @@ import argparse
 from amtk.utils import options, messages, time, misc
 
 
-class Options(unittest.TestCase):
+class OptionsUtils(unittest.TestCase):
+    '''
+    Tests for functions in the options module.
+    '''
+    def check_parser(self, parser, tests):
+        '''
+        A utility to implement tests of the form:
+
+        tests = [
+            {
+                'test': 'test arguments'
+                'expected': {
+                    'attribute': 'value',
+                }
+            },
+        ]
+        '''
+        for test in tests:
+            # Parse the test.
+            result = parser.parse_args(test['test'].split())
+
+            # Check the result.
+            for attribute, value in test['expected'].items():
+                self.assertEqual(getattr(result, attribute), value)
+
+
+class Options(OptionsUtils):
     '''
     Tests for functions in the options module.
     '''
@@ -26,33 +52,12 @@ class Options(unittest.TestCase):
         parameters = (MagicMock(), MagicMock())
 
         # Run the test.
-        result = options.parse(description, parameters)
+        result = options.configure(description, parameters)
 
         # Check the result.
         self.assertEqual(result.description, description)
         for parameter in parameters:
             parameter.assert_called_once_with(result)
-
-    def check_parser(self, parser, cases):
-        '''
-        A utility to implement test cases of the form:
-
-        cases = [
-            {
-                'test': 'test arguments'
-                'expected': {
-                    'attribute': 'value',
-                }
-            },
-        ]
-        '''
-        for case in cases:
-            # Parse the test.
-            result = parser.parse_args(case['test'].split())
-
-            # Check the result.
-            for attribute, value in case['expected'].items():
-                self.assertEqual(getattr(result, attribute), value)
 
     def test_amqp_record(self):
         '''
@@ -93,7 +98,7 @@ class Options(unittest.TestCase):
         )
 
         # Run the test.
-        parser = options.parse(description, parameters)
+        parser = options.configure(description, parameters)
         self.check_parser(parser, cases)
 
     def test_amqp_play(self):
@@ -121,7 +126,7 @@ class Options(unittest.TestCase):
         )
 
         # Run the test.
-        parser = options.parse(description, parameters)
+        parser = options.configure(description, parameters)
         self.check_parser(parser, cases)
 
     def test_prefetch(self):
@@ -151,7 +156,7 @@ class Options(unittest.TestCase):
         )
 
         # Run the test.
-        parser = options.parse(description, parameters)
+        parser = options.configure(description, parameters)
         self.check_parser(parser, cases)
 
     def test_timing(self):
@@ -179,7 +184,7 @@ class Options(unittest.TestCase):
         )
 
         # Run the test.
-        parser = options.parse(description, parameters)
+        parser = options.configure(description, parameters)
         self.check_parser(parser, cases)
 
     def test_publish(self):
@@ -209,7 +214,7 @@ class Options(unittest.TestCase):
         )
 
         # Run the test.
-        parser = options.parse(description, parameters)
+        parser = options.configure(description, parameters)
         self.check_parser(parser, cases)
 
     def check_file_stdio(self, target, name, stdin=True):
@@ -284,7 +289,7 @@ class Options(unittest.TestCase):
         )
 
         # Run the test.
-        parser = options.parse(description, parameters)
+        parser = options.configure(description, parameters)
         self.check_parser(parser, cases)
 
     def test_version(self):
@@ -300,7 +305,7 @@ class Options(unittest.TestCase):
         parser = argparse.ArgumentParser(prog='test')
 
         # Run the test.
-        options.version(parser)
+        options.version()(parser)
 
 
 class Messages(unittest.TestCase):
