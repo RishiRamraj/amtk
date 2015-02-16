@@ -23,13 +23,13 @@ def connect(config):
 
     # Create the connection and channel.
     message = 'Connecting to messaging server %s:%d.'
-    logging.debug(message % (config.host, config.port))
+    logging.debug(message, config.host, config.port)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
 
     # Declare the exchange.
     message = 'Passiely declaring exchange %s.'
-    logging.debug(message % config.exchange)
+    logging.debug(message, config.exchange)
     channel.exchange_declare(
         exchange=config.exchange,
         passive=True,
@@ -45,7 +45,7 @@ def subscribe(channel, config, passive=False, durable=False, exclusive=False,
     '''
     # Create the queue.
     message = 'Declaring queue %s.'
-    logging.debug(message % config.queue)
+    logging.debug(message, config.queue)
     result = channel.queue_declare(
         queue=config.queue,
         passive=passive,
@@ -57,7 +57,7 @@ def subscribe(channel, config, passive=False, durable=False, exclusive=False,
 
     # Bind to the exchange.
     message = 'Binding to exchange %s with routing key %s.'
-    logging.debug(message % (config.exchange, config.routing_key))
+    logging.debug(message, config.exchange, config.routing_key)
     channel.queue_bind(
         queue=queue,
         exchange=config.exchange,
@@ -72,7 +72,7 @@ def qos(channel, config):
     Set up basic quality of service parameters.
     '''
     message = 'Binding to exchange %s with routing key %s.'
-    logging.debug(message % (config.exchange, config.routing_key))
+    logging.debug(message, config.exchange, config.routing_key)
     channel.basic_qos(
         prefetch_size=config.prefetch_size,
         prefetch_count=config.prefetch_count,
