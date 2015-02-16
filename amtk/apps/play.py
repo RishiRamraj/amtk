@@ -163,7 +163,7 @@ def main():
         options.input,
         options.version(),
     )
-    args = options.parse(description, parameters).parse_args()
+    args = options.configure(description, parameters).parse_args()
 
     # Run until the user interrupts execution.
     with misc.suppress_interrupt():

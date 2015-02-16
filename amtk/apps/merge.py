@@ -76,7 +76,7 @@ def main():
         options.order,
         options.version(),
     )
-    args = options.parse(description, parameters).parse_args()
+    args = options.configure(description, parameters).parse_args()
 
     # Merge files.
     merge(args)

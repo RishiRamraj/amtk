@@ -17,7 +17,7 @@ class OptionsUtils(unittest.TestCase):
     '''
     Tests for functions in the options module.
     '''
-    def check_parser(self, parser, tests):
+    def check_parser(self, parameters, tests):
         '''
         A utility to implement tests of the form:
 
@@ -30,6 +30,9 @@ class OptionsUtils(unittest.TestCase):
             },
         ]
         '''
+        # Create the parser.
+        parser = options.configure('test', parameters)
+
         for test in tests:
             # Parse the test.
             result = parser.parse_args(test['test'].split())
@@ -64,11 +67,10 @@ class Options(OptionsUtils):
         A test for the amqp function in record mode.
         '''
         # Create test data.
-        description = 'test'
         parameters = (options.amqp(routing_key='routing', queue=True), )
 
         # Create test cases.
-        cases = (
+        tests = (
             {
                 'test': 'exchange key',
                 'expected': {
@@ -98,19 +100,17 @@ class Options(OptionsUtils):
         )
 
         # Run the test.
-        parser = options.configure(description, parameters)
-        self.check_parser(parser, cases)
+        self.check_parser(parameters, tests)
 
     def test_amqp_play(self):
         '''
         A test for the amqp function in play mode.
         '''
         # Create test data.
-        description = 'test'
         parameters = (options.amqp(routing_key='play'), )
 
         # Create test cases.
-        cases = (
+        tests = (
             {
                 'test': 'test',
                 'expected': {
@@ -126,19 +126,17 @@ class Options(OptionsUtils):
         )
 
         # Run the test.
-        parser = options.configure(description, parameters)
-        self.check_parser(parser, cases)
+        self.check_parser(parameters, tests)
 
     def test_prefetch(self):
         '''
         A test for the prefetch function.
         '''
         # Create test data.
-        description = 'test'
         parameters = (options.prefetch, )
 
         # Create test cases.
-        cases = (
+        tests = (
             {
                 'test': '',
                 'expected': {
@@ -156,19 +154,17 @@ class Options(OptionsUtils):
         )
 
         # Run the test.
-        parser = options.configure(description, parameters)
-        self.check_parser(parser, cases)
+        self.check_parser(parameters, tests)
 
     def test_timing(self):
         '''
         A test for the timing function.
         '''
         # Create test data.
-        description = 'test'
         parameters = (options.timing, )
 
         # Create test cases.
-        cases = (
+        tests = (
             {
                 'test': '',
                 'expected': {
@@ -184,19 +180,17 @@ class Options(OptionsUtils):
         )
 
         # Run the test.
-        parser = options.configure(description, parameters)
-        self.check_parser(parser, cases)
+        self.check_parser(parameters, tests)
 
     def test_publish(self):
         '''
         A test for the publish function.
         '''
         # Create test data.
-        description = 'test'
         parameters = (options.publish, )
 
         # Create test cases.
-        cases = (
+        tests = (
             {
                 'test': '',
                 'expected': {
@@ -214,8 +208,7 @@ class Options(OptionsUtils):
         )
 
         # Run the test.
-        parser = options.configure(description, parameters)
-        self.check_parser(parser, cases)
+        self.check_parser(parameters, tests)
 
     def check_file_stdio(self, target, name, stdin=True):
         '''
@@ -269,11 +262,10 @@ class Options(OptionsUtils):
         A test for the order function.
         '''
         # Create test data.
-        description = 'test'
         parameters = (options.order, )
 
         # Create test cases.
-        cases = (
+        tests = (
             {
                 'test': '',
                 'expected': {
@@ -289,8 +281,7 @@ class Options(OptionsUtils):
         )
 
         # Run the test.
-        parser = options.configure(description, parameters)
-        self.check_parser(parser, cases)
+        self.check_parser(parameters, tests)
 
     def test_version(self):
         '''

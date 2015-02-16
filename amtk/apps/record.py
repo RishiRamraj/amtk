@@ -82,7 +82,7 @@ def main():
         options.output,
         options.version(),
     )
-    args = options.parse(description, parameters).parse_args()
+    args = options.configure(description, parameters).parse_args()
 
     # Run until the user interrupts execution.
     record(args)
