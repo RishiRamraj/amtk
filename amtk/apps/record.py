@@ -44,7 +44,7 @@ def record(args):
     connection, channel = messages.connect(args)
 
     # Subscribe to the exchange.
-    queue = messages.subscribe(channel, args)
+    queue = messages.subscribe(channel, args, exclusive=True, auto_delete=True)
     messages.qos(channel, args)
 
     # Create a callback that closures over the args parameter.

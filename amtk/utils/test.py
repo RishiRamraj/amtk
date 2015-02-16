@@ -439,11 +439,8 @@ class Misc(unittest.TestCase):
         '''
         A positive test for the optional function.
         '''
-        # Create test data.
-        function = lambda value: value+1
-
         # Run the test.
-        result = misc.optional(function)
+        result = misc.optional(lambda value: value+1)
 
         # Check the result.
         self.assertEqual(result(0), 1)
@@ -452,11 +449,8 @@ class Misc(unittest.TestCase):
         '''
         A negative test for the optional function.
         '''
-        # Create test data.
-        function = lambda value: value+1
-
         # Run the test.
-        result = misc.optional(function)
+        result = misc.optional(lambda value: value+1)
 
         # Check the result.
         self.assertIsNone(result(None))
